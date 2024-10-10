@@ -10,11 +10,30 @@
     "type": "git",
     "url": "git+https://github.com/svylabs-com/microcraft-lib.git"
   },
-  "keywords": ["library", "microcraft"],
+  "keywords": [
+    "library",
+    "microcraft"
+  ],
   "author": "Rohit Bharti",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/svylabs-com/microcraft-lib/issues"
   },
-  "homepage": "https://github.com/svylabs-com/microcraft-lib#readme"
+  "homepage": "https://github.com/svylabs-com/microcraft-lib#readme",
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0"
+  },
+  "dependencies": {
+    "@cosmjs/stargate": "^0.32.4",
+    "@keplr-wallet/types": "^0.12.130",
+    "@mantine/core": "^7.13.2",
+    "bignumber.js": "^9.1.2",
+    "d3": "^7.9.0",
+    "ethers": "^6.13.3",
+    "qs": "^6.13.0",
+    "react-json-view": "^1.21.3",
+    "react-toastify": "^10.0.5",
+    "web3": "^4.13.0"
+  }
 }
