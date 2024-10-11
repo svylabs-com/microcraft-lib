@@ -172,8 +172,8 @@ const GraphComponent: React.FC<Props> = ({
           .data(dataValues)
           .enter()
           .append("rect")
-          .attr("x", (d, i) => xScale(String(dataLabels[i])) || 0)
-          .attr("y", (d) => yScale(d) || 0)
+          .attr("x", (d, i) => xScale(String(dataLabels[i])) ?? 0)
+          .attr("y", (d) => yScale(d))
           .attr("width", xScale.bandwidth())
           .attr("height", (d) => graphHeight - yScale(d))
           .attr("fill", "steelblue")
@@ -199,17 +199,9 @@ const GraphComponent: React.FC<Props> = ({
       } else if (selectedGraphType === "line") {
         const line = d3
           // .line()
-          // .x((d, i) => xScale(String(dataLabels[i])) + xScale.bandwidth() / 2)
-          // .y((d) => yScale(d))
-          // .curve(d3.curveLinear);
-          .line()
-          .x((d, i) => {
-              const label = dataLabels[i];
-              return label ? xScale(String(label)) + xScale.bandwidth() / 2 : 0; // Default to 0 if undefined
-          })
-          .y((d) => {
-              return d !== undefined ? yScale(d) : 0; // Default to 0 if undefined
-          })
+          .line<number>()
+          .x((d, i) => (xScale(String(dataLabels[i])) ?? 0) + xScale.bandwidth() / 2)
+          .y((d) => yScale(d))
           .curve(d3.curveLinear);
 
         graph
@@ -227,7 +219,7 @@ const GraphComponent: React.FC<Props> = ({
           .append("circle")
           .attr(
             "cx",
-            (d, i) => xScale(String(dataLabels[i])) + xScale.bandwidth() / 2
+            (d, i) => (xScale(String(dataLabels[i])) ?? 0) + xScale.bandwidth() / 2
           )
           .attr("cy", (d) => yScale(d))
           .attr("r", 4)
