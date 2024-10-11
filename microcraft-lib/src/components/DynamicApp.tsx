@@ -108,7 +108,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
   };
 
   const switchToSupportedNetwork = async () => {
-    const formatChainId = (chainId) => {
+    const formatChainId = (chainId: any) => {
       if (typeof chainId === 'number') {
         return `0x${chainId.toString(16)}`;
       } else if (typeof chainId === 'string' && !chainId.startsWith('0x')) {
@@ -117,11 +117,11 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
       return chainId;
     };
 
-    const validateNetworkParams = (network) => {
+    const validateNetworkParams = (network: any) => {
       return network.config.chainId && network.config.rpcUrl && network.config.rpcUrl.length > 0;
     };
 
-    const addAndSwitchNetwork = async (supportedNetwork) => {
+    const addAndSwitchNetwork = async (supportedNetwork: any) => {
       if (!validateNetworkParams(supportedNetwork)) {
         console.error('Missing required network parameters:', supportedNetwork);
         setNetworkStatus('Failed to add network. Missing required parameters.');
@@ -149,7 +149,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
       }
     };
 
-    const switchNetwork = async (supportedNetwork) => {
+    const switchNetwork = async (supportedNetwork: any) => {
       if (!supportedNetwork.config.chainId) {
         console.error('Missing required network parameter: chainId', supportedNetwork);
         setNetworkStatus('Failed to switch network. Missing chainId.');
@@ -214,7 +214,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
 
   const web3 = new Web3(window.ethereum);
 
-  const injectedContracts = (loadedData.contractDetails || loadedData.contract_details)?.reduce((contracts, contract) => {
+  const injectedContracts = (loadedData.contractDetails || loadedData.contract_details)?.reduce((contracts: any, contract: any) => {
     if (contract.abi && contract.abi.length > 0) {
       // If ABI is directly provided, use it.
       contracts[contract.name] = {
@@ -228,7 +228,8 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
         'ERC1155': ERC1155_ABI,
       };
 
-      const contractPath = templateMap[contract.template];
+      // const contractPath = templateMap[contract.template];
+      const contractPath = templateMap[contract.template as keyof typeof templateMap];
       if (contractPath) {
         contracts[contract.name] = {
           ...new web3.eth.Contract(contract.abi, contract.address),
@@ -259,7 +260,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
     console.log(components);
     components.forEach((component) => {
       if (component.events) {
-        component.events.forEach((event) => {
+        component.events.forEach((event: any) => {
           if (event.eventsCode) {
             executeOnLoadCode(event.eventsCode);
           }
@@ -268,7 +269,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
     });
   }, [components]);
 
-  const executeOnLoadCode = async (code) => {
+  const executeOnLoadCode = async (code: any) => {
     try {
       setLoading(true);
       const config = mcLib.web3.config;
@@ -276,7 +277,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
       const result = await eval(code);
       if (typeof result === "object") {
         setData((prevData) => ({ ...prevData, ...result }));
-        setOutputCode((prevOutputCode) => ({ ...prevOutputCode, ...result }));
+        setOutputCode((prevOutputCode: any) => ({ ...prevOutputCode, ...result }));
       }
     } catch (error) {
       console.error("Error executing onLoad code:", error);
@@ -422,7 +423,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
                     configurations={
                       component.config.swapConfig
                     }
-                    onSwapChange={(swapData) =>
+                    onSwapChange={(swapData: any) =>
                       handleInputChange(component.id, swapData)
                     }
                   />
@@ -442,7 +443,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
                       : {}),
                   }}
                 >
-                  {component.config && component.config.optionsConfig && component.config.optionsConfig.values.map((option, idx) => (
+                  {component.config && component.config.optionsConfig && component.config.optionsConfig.values.map((option: any, idx: any) => (
                     <option key={idx} value={option.trim()}>
                       {option.trim()}
                     </option>
@@ -453,7 +454,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
                 <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
                   {component.config && component.config.optionsConfig &&
                     component.config
-                      .optionsConfig.values.map((option, idx) => {
+                      .optionsConfig.values.map((option: any, idx: any) => {
                         const optionWidth = option.trim().length * 8 + 48;
 
                         return (
@@ -493,7 +494,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
                 <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
                   {component.config && component.config.optionsConfig &&
                     component.config
-                      .optionsConfig.values.map((option, idx) => {
+                      .optionsConfig.values.map((option: any, idx: any) => {
                         const optionWidth = option.trim().length * 8 + 48;
 
                         return (
@@ -515,7 +516,7 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
                                 const updatedValue = isChecked
                                   ? [...currentValue, option]
                                   : currentValue.filter(
-                                    (item) => item !== option
+                                    (item: any) => item !== option
                                   );
                                 handleInputChange(component.id, updatedValue);
                               }}
