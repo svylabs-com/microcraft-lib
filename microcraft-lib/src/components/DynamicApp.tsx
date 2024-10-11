@@ -10,18 +10,18 @@ import Loading from "./loadingPage/Loading";
 import Swap from "./Web3/Swap/WalletSwap";
 import JsonViewer from './Renderer/JsonViewer';
 import Alert from "./Renderer/Alert";
-import { ERC20_ABI } from './Renderer/ABI/ERC20_ABI';
-import { ERC721_ABI } from './Renderer/ABI/ERC721_ABI';
-import { ERC1155_ABI } from './Renderer/ABI/ERC1155_ABI';
+import { ERC20_ABI } from './ABI/ERC20_ABI';
+import { ERC721_ABI } from './ABI/ERC721_ABI';
+import { ERC1155_ABI } from './ABI/ERC1155_ABI';
 
-declare global {
-  interface Window {
-    ethereum?: any;
-    mina?: any;
-    // keplr?: any;
-    // getOfflineSigner: (chainId: string) => any;
-  }
-}
+// declare global {
+//   interface Window {
+//     ethereum?: any;
+//     mina?: any;
+//     // keplr?: any;
+//     // getOfflineSigner: (chainId: string) => any;
+//   }
+// }
 
 interface Props {
   components: any[];
