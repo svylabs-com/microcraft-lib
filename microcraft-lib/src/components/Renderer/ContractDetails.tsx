@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const getDataFromLocalStorage = (key) => {
+const getDataFromLocalStorage = (key: any) => {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
 };

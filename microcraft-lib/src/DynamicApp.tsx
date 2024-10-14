@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import { ethers } from 'ethers';
 import Web3 from "web3";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import Wallet from "./Web3/DropdownConnectedWallet";
-import Graph from "./outputPlacement/GraphComponent";
-import Table from "./outputPlacement/TableComponent";
-import TextOutput from "./outputPlacement/TextOutput";
-import Loading from "./loadingPage/Loading";
-import Swap from "./Web3/Swap/WalletSwap";
-import JsonViewer from './Renderer/JsonViewer';
-import Alert from "./Renderer/Alert";
-import { ERC20_ABI } from './ABI/ERC20_ABI';
-import { ERC721_ABI } from './ABI/ERC721_ABI';
-import { ERC1155_ABI } from './ABI/ERC1155_ABI';
+import Wallet from "./components/Web3/DropdownConnectedWallet";
+import Graph from "./components/outputPlacement/GraphComponent";
+import Table from "./components/outputPlacement/TableComponent";
+import TextOutput from "./components/outputPlacement/TextOutput";
+import Loading from "./components/loadingPage/Loading";
+import Swap from "./components/Web3/Swap/WalletSwap";
+import JsonViewer from './components/Renderer/JsonViewer';
+import Alert from "./components/Renderer/Alert";
+import { ERC20_ABI } from './components/ABI/ERC20_ABI';
+import { ERC721_ABI } from './components/ABI/ERC721_ABI';
+import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
 
 // declare global {
 //   interface Window {

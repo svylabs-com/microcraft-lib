@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import DynamicApp from '../microcraft-lib/src/components/DynamicApp';
+import DynamicApp from '../microcraft-lib/src/DynamicApp';
 
 // Hardcoded mock data
 const mockContractMetaData = {

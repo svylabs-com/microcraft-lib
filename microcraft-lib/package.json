@@ -2,8 +2,9 @@
   "name": "microcraft-lib",
   "version": "1.0.0",
   "description": "create an npm library and test it",
-  "main": "src/index.js",
+  "main": "src/DynamicApp.tsx",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +24,8 @@
   "devDependencies": {
     "@types/d3": "^7.4.3",
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0"
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@cosmjs/stargate": "^0.32.4",
@@ -36,5 +38,13 @@
     "react-json-view": "^1.21.3",
     "react-toastify": "^10.0.5",
     "web3": "^4.13.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src/components/**",
+    "src/DynamicApp.tsx",
+    "src/global.d.ts"
+  ]
 }
