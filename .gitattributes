@@ -1,0 +1,10 @@
+# Enforce LF line endings for all text files
+* text=auto
+
+# Specific file types you may want to force LF line endings
+*.tsx text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.json text eol=lf
