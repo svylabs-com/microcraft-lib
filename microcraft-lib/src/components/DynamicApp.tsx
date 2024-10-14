@@ -33,7 +33,7 @@ interface Props {
   setOutputCode: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contractMetaData }) => {
+const DynamicApp: React.FC<Props> = ({ components, data, setData, setOutputCode, contractMetaData }) => {
   const [loading, setLoading] = useState(false);
   const [loadedData, setLoadedData] = useState<any>({});
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
@@ -626,4 +626,4 @@ const App: React.FC<Props> = ({ components, data, setData, setOutputCode, contra
   );
 };
 
-export default App;
+export default DynamicApp;
