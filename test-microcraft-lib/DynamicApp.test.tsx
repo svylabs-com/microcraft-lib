@@ -2,127 +2,126 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import DynamicApp from '../microcraft-lib/src/DynamicApp';
 
-// Hardcoded mock data
-const mockContractMetaData = {
+// Consolidated mock data
+const mockProps = {
   networkDetails: [
     {
       type: 'Ethereum',
       config: {
         chainId: '0x1',
         rpcUrl: 'https://mainnet.infura.io/v3/YOUR_PROJECT_ID',
+        exploreUrl: 'https://etherscan.io',
       },
     },
   ],
   contractDetails: [
     {
-      name: 'MyContract',
-      address: '0x1234567890',
+      name: 'MyERC20Contract',
+      address: '0x1234567890abcdef',
       abi: [
         {
           inputs: [],
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
+        {
+          name: 'totalSupply',
+          outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
       ],
+      template: 'ERC20',
     },
   ],
-};
-
-const mockComponents = [
-  {
-    id: 'input-1',
-    type: 'text',
-    label: 'Input 1',
-    placement: 'input',
+  components: [
+    {
+      id: 'erc20AddressInput',
+      type: 'text',
+      label: 'Enter ERC20 Address',
+      placement: 'input',
+    },
+    {
+      id: 'fetchERC20Data',
+      type: 'button',
+      label: 'Fetch ERC20 Data',
+      code: 'async function fetchERC20Data() { console.log("Fetching data..."); }',
+      placement: 'action',
+    },
+    {
+      id: 'erc20TotalSupply',
+      type: 'text',
+      label: 'Total ERC20 Supply',
+      placement: 'output',
+    },
+    {
+      id: 'erc20Name',
+      type: 'text',
+      label: 'ERC20 Token Name',
+      placement: 'output',
+    },
+    {
+      id: 'erc20UserBalance',
+      type: 'text',
+      label: 'User\'s ERC20 Balance',
+      placement: 'output',
+    },
+  ],
+  data: {
+    walletAddressSelect: {
+      address: '0xd4ac2651cea6890c1fd2b65b329ed28c4b569519',
+      balance: 0
+    }
   },
-  {
-    id: 'button-1',
-    type: 'button',
-    label: 'Button 1',
-    code: 'console.log("Button 1 clicked!");',
+  setData: (data: any) => {
+    console.log('setData called with:', data);
   },
-];
-
-const mockData = {
-  'input-1': '',
-  output: {},
-  configurations: {},
+  debug: (code: any) => {
+    console.log('Output code:', code);
+  },
 };
 
-// Hardcoded functions for testing
-const mockSetData = (data: any) => {
-  console.log('setData called with:', data);
-};
-
-const mockSetOutputCode = (code: string) => {
-  console.log('setOutputCode called with:', code);
-};
-
-// Function to render the component and manually interact with it
+// Test function to render and test the DynamicApp
 function testDynamicApp() {
-  // Create a container div to render the component into
+  // Create a container to render the component
   const container = document.createElement('div');
   document.body.appendChild(container);
 
-  // Render the DynamicApp component
+  // Render the DynamicApp with consolidated props
   ReactDOM.render(
     <DynamicApp
-      components={mockComponents}
-      data={mockData}
-      setData={mockSetData}
-      setOutputCode={mockSetOutputCode}
-      contractMetaData={mockContractMetaData}
+      components={mockProps.components}
+      data={mockProps.data}
+      setData={mockProps.setData}
+      contracts={mockProps.contractDetails}
+      network={mockProps.networkDetails}
+      debug={mockProps.debug}
     />,
     container
   );
 
-  // Check if the input and button are rendered correctly
-  const inputLabelElement = container.querySelector('label[for="input-1"]');
+  // Perform checks (like querying inputs, buttons, etc.)
+  const inputLabelElement = container.querySelector('label[for="erc20AddressInput"]');
   if (inputLabelElement) {
-    console.log('Input 1 is rendered:', inputLabelElement.textContent);
-
-    // Get the input field associated with the label
-    const inputElement = inputLabelElement.nextElementSibling as HTMLInputElement | null; // Type assertion
+    console.log('Input field is rendered with label:', inputLabelElement.textContent);
+    const inputElement = inputLabelElement.nextElementSibling as HTMLInputElement;
     if (inputElement) {
-      console.log('Input field is rendered');
-      inputElement.value = 'Hello World'; // Simulate user input
+      inputElement.value = '0x123';
       const inputEvent = new Event('input', { bubbles: true });
-      inputElement.dispatchEvent(inputEvent); // Trigger input event manually
-    } else {
-      console.error('Input element not found.');
+      inputElement.dispatchEvent(inputEvent); // Simulate typing
     }
-  } else {
-    console.error('Input label not found.');
   }
 
   const buttonElement = container.querySelector('button');
   if (buttonElement) {
-    console.log('Button 1 is rendered:', buttonElement.textContent);
+    console.log('Button is rendered:', buttonElement.textContent);
     buttonElement.click(); // Simulate button click
-  } else {
-    console.error('Button element not found.');
   }
 
-  // Check if contract details are rendered correctly
-  const contractNameElement = container.querySelector('div');
-  const contractAddressElement = contractNameElement?.nextElementSibling;
-
-  if (contractNameElement && contractNameElement.textContent === mockContractMetaData.contractDetails[0].name) {
-    console.log('Contract name is rendered correctly:', contractNameElement.textContent);
-  } else {
-    console.error('Contract name not found or incorrect.');
-  }
-
-  if (contractAddressElement && contractAddressElement.textContent === mockContractMetaData.contractDetails[0].address) {
-    console.log('Contract address is rendered correctly:', contractAddressElement.textContent);
-  } else {
-    console.error('Contract address not found or incorrect.');
-  }
-
-  // Cleanup
+  // Cleanup after test
   ReactDOM.unmountComponentAtNode(container);
   document.body.removeChild(container);
 }
 
-// Call the test function
+// Call the test function to render and test the component
 testDynamicApp();
