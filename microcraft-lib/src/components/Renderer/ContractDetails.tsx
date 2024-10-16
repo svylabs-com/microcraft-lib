@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const getDataFromLocalStorage = (key: any) => {
+const getDataFromLocalStorage = (key: string) => {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
 };
@@ -17,16 +17,16 @@ interface NetworkConfig {
 }
 
 interface NetworkDetails {
-    type: string;
-    config: NetworkConfig;
+    type?: string;
+    config?: Partial<NetworkConfig>;
 }
 
 interface FormData {
-    selectedContracts: string[];
-    contractDetails: ContractDetail[];
-    networkDetails: NetworkDetails;
-    teamId: string;
-    privacy: string;
+    selectedContracts?: string[];
+    contractDetails?: ContractDetail[];
+    networkDetails?: NetworkDetails;
+    teamId?: string;
+    privacy?: string;
 }
 
 interface ContractDetailsProps {
@@ -61,6 +61,8 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
         };
     }, [onClose]);
 
+    const { selectedContracts, contractDetails, networkDetails, teamId, privacy } = formData;
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
             <div ref={modalRef} className="bg-white rounded-md p-4 md:p-8 w-full max-w-md relative py-10">
@@ -74,24 +76,24 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
                 <div className="p-3 px-4 bg-gray-200 rounded shadow-lg mt-2">
                     <h2 className="text-lg md:text-xl font-bold text-center text-[#4a4b4c] underline underline-offset-2 mb-2">Contracts Details</h2>
 
-                    {formData.privacy && (
+                    {privacy && (
                         <div className="mb-4">
                             <h3 className="text-[#727679] font-semibold text-lg">Privacy:</h3>
-                            <p className="text-gray-700">{formData.privacy}</p>
+                            <p className="text-gray-700">{privacy}</p>
                         </div>
                     )}
 
-                    {formData.teamId && (
+                    {teamId && (
                         <div className="mb-4">
                             <h3 className="text-[#727679] font-semibold text-lg">Team ID:</h3>
-                            <p className="text-gray-700">{formData.teamId}</p>
+                            <p className="text-gray-700">{teamId}</p>
                         </div>
                     )}
 
                     <h3 className="text-[#727679] font-semibold text-lg">Selected Contracts:</h3>
-                    {formData.selectedContracts.length > 0 ? (
+                    {selectedContracts && selectedContracts.length > 0 ? (
                         <ul className="list-disc list-inside mb-4">
-                            {formData.selectedContracts.map((contract, index) => (
+                            {selectedContracts.map((contract, index) => (
                                 <li key={index} className="text-gray-700">{contract}</li>
                             ))}
                         </ul>
@@ -99,40 +101,39 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
                         <p className="text-gray-700">You have not selected any contracts.</p>
                     )}
 
-                    {formData.contractDetails.length > 0 && (
+                    {contractDetails && contractDetails.length > 0 && (
                         <div className="mb-4">
                             <h3 className="text-[#727679] font-semibold text-lg">Contract Details:</h3>
                             <ul className="list-disc list-inside">
-                                {formData.contractDetails.map((detail, index) => (
+                                {contractDetails.map((detail, index) => (
                                     <li key={index} className="text-gray-700 overflow-scroll">
-                                        Name: {detail.name}, Address: {detail.address}
+                                        Name: {detail.name || "N/A"}, Address: {detail.address || "N/A"}
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     )}
 
-                    {formData.networkDetails.type && (
+                    {networkDetails && networkDetails.type && (
                         <div className="mb-4">
                             <h3 className="text-[#727679] font-semibold text-lg">Network Details:</h3>
                             <p className="text-gray-700">
-                                Type: {formData.networkDetails.type}
+                                Type: {networkDetails.type || "N/A"}
                             </p>
                             <p className="text-gray-700">
-                                RPC URL: {formData.networkDetails.config.rpcUrl}
+                                RPC URL: {networkDetails.config?.rpcUrl || "N/A"}
                             </p>
                             <p className="text-gray-700">
-                                Chain ID: {formData.networkDetails.config.chainId}
+                                Chain ID: {networkDetails.config?.chainId || "N/A"}
                             </p>
                             <p className="text-gray-700">
-                                Explorer URL: {formData.networkDetails.config.exploreUrl}
+                                Explorer URL: {networkDetails.config?.exploreUrl || "N/A"}
                             </p>
                         </div>
                     )}
                 </div>
             </div>
         </div>
-
     );
 };
 
