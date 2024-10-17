@@ -1,5 +1,5 @@
 {
-  "name": "microcraft-lib",
+  "name": "@svylabs/microcraft-lib",
   "version": "1.0.2",
   "description": "create an npm library and test it",
   "main": "src/DynamicApp.tsx",
