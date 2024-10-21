@@ -48,7 +48,7 @@ const app = {
       "label": "Fetch ERC20 Data",
       "id": "fetchERC20Data",
       "placement": "action",
-      "codeRef": "actions/fetch_lusd.js"
+      "codeRef": "actions/fetch_token_details.js" // you can define a function that can fetch token details here
     },
     {
       "type": "text",
@@ -71,7 +71,7 @@ const app = {
     {
       "type": "walletDropdown",
       "label": "Select Connected Wallet Address",
-      "id": "walletAddressSelect",
+      "id": "walletAddress",
       "options": [],
       "placement": "input"
     },
@@ -95,7 +95,7 @@ const app = {
       "placement": "output"
     }
   ],
-  contractDetails: [
+  contracts: [
     {
       "name": "ERC20",
       "address": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
@@ -103,7 +103,7 @@ const app = {
       "abi": []
     }
   ],
-  networkDetails: {
+  network: {
     "type": "ethereum",
     "config": {
       "rpcUrl": "your_rpc_url",
@@ -113,7 +113,7 @@ const app = {
   }
 }
 
-// Initial data for app components
+// Initial data for app elements(components)
 let data = {};
 
 // Callback function to handle data updates
@@ -144,4 +144,4 @@ You can render the UI dynamically using the `<DynamicApp />` component, which ta
 
 --- 
 
-**Enjoy building Web3 dApps with Microcraft Lib!**
+**Enjoy building UI for your favorite web3 dapps with Microcraft Lib!**
