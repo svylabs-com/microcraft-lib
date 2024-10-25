@@ -63,7 +63,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         await ethereum.send("eth_requestAccounts", []);
         const network = await provider.getNetwork();
         console.log("Network:", network);
-        
+
         if (network && network.chainId && network.name) {
           setNetworkName(network.name);
           setChainId(network.chainId.toString());
@@ -537,38 +537,46 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                 </div>
               )}
               {component.type === "slider" && (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    id={component.id}
-                    className="w-full md:w-[60%] h-8"
-                    name={component.label}
-                    min={
-                      component.config.sliderConfig
-                        .interval.min
-                    }
-                    max={
-                      component.config.sliderConfig
-                        .interval.max
-                    }
-                    step={
-                      component.config.sliderConfig
-                        .step
-                    }
-                    value={
-                      data[component.id] ||
-                      component.config.sliderConfig
-                        .value
-                    }
-                    onChange={(e) =>
-                      handleInputChange(component.id, e.target.value)
-                    }
-                  />
-                  <span className="font-semibold">
-                    {data[component.id] ||
-                      component.config.sliderConfig
-                        .value}
-                  </span>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      id={component.id}
+                      className="w-full md:w-[60%] h-8 cursor-pointer"
+                      name={component.label}
+                      min={
+                        component.config.sliderConfig
+                          .interval.min
+                      }
+                      max={
+                        component.config.sliderConfig
+                          .interval.max
+                      }
+                      step={
+                        component.config.sliderConfig
+                          .step
+                      }
+                      value={
+                        data[component.id] ||
+                        component.config.sliderConfig
+                          .value
+                      }
+                      onChange={(e) =>
+                        handleInputChange(component.id, e.target.value)
+                      }
+                    />
+                    <span className="font-semibold">
+                      {data[component.id] ||
+                        component.config.sliderConfig
+                          .value}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <svg className="w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2l4 -4" />
+                    </svg>
+                    <span>Recommended: <strong className="text-blue-600">{component.config.sliderConfig.value}</strong></span>
+                  </p>
                 </div>
               )}
               {component.type === "walletDropdown" && (
