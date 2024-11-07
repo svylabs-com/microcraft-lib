@@ -15,10 +15,10 @@ interface Props {
 
 const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
 
-  const fromTokens = configurations.tokens.filter(token =>
+  const fromTokens = configurations.tokens.filter((token: any) =>
     token.listType === "from" || token.listType === "both"
   );
-  const toTokens = configurations.tokens.filter(token =>
+  const toTokens = configurations.tokens.filter((token: any) =>
     token.listType === "to" || token.listType === "both"
   );
 
@@ -74,7 +74,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
       }
 
       setMaxAmount(balance.toString());
-      setMaxAmount("30");
+      // setMaxAmount("30");
       console.log("maxAmount", maxAmount);
     } catch (error) {
       console.error("Error fetching user address or balance:", error);
@@ -102,7 +102,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
     }
   }, [configurations, data]);
 
-  const selectToken = (side, token) => {
+  const selectToken = (side: "from" | "to", token: any) => {
     const updatedTrade = { ...currentTrade, [side]: token };
     setCurrentTrade(updatedTrade);
     if (side === "from") setFromAmount("");

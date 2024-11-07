@@ -1,12 +1,11 @@
 import React from 'react';
 
-const DescriptionComponent = ({ data }) => {
-  return (
-    <p>
-      {/* {data ? JSON.stringify(data, null, 2) : ""} */}
-      {data ? data : ""}
-    </p>
-  );
+interface DescriptionComponentProps {
+  data: any;
+}
+
+const DescriptionComponent: React.FC<DescriptionComponentProps> = ({ data }) => {
+  return <p>{data ? data : ""}</p>;
 };
 
 export default DescriptionComponent;
