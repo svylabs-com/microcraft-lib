@@ -74,7 +74,6 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
       }
 
       setMaxAmount(balance.toString());
-      // setMaxAmount("30");
       console.log("maxAmount", maxAmount);
     } catch (error) {
       console.error("Error fetching user address or balance:", error);
