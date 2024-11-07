@@ -6,6 +6,8 @@ import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
 import Table from "./components/outputPlacement/TableComponent";
 import TextOutput from "./components/outputPlacement/TextOutput";
+import DescriptionComponent from './components/outputPlacement/DescriptionComponent';
+import TransactionLink from './components/outputPlacement/TransactionLink';
 import Loading from "./components/loadingPage/Loading";
 import Swap from "./components/Web3/Swap/WalletSwap";
 import JsonViewer from './components/Renderer/JsonViewer';
@@ -13,6 +15,8 @@ import Alert from "./components/Renderer/Alert";
 import { ERC20_ABI } from './components/ABI/ERC20_ABI';
 import { ERC721_ABI } from './components/ABI/ERC721_ABI';
 import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   components: any[];
@@ -187,11 +191,29 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     }
   };
 
-  const initializeCosmosClient = async () => {
+  // const initializeCosmosClient = async () => {
+  //   if (rpcUrls) {
+  //     try {
+  //       const chainId = chainIds || "cosmoshub-4";
+
+  //       if (!window.keplr) {
+  //         throw new Error("Keplr extension is not installed");
+  //       }
+
+  //       await window.keplr.enable(chainId);
+  //       const offlineSigner = window.getOfflineSigner(chainId);
+  //       const client = await SigningStargateClient.connectWithSigner(rpcUrls, offlineSigner);
+
+  //       setCosmosClient(client);
+  //     } catch (error) {
+  //       console.error("Error initializing Cosmos client:", error);
+  //     }
+  //   }
+  // };
+
+  const initializeCosmosClient = async (chainId: string) => {
     if (rpcUrls) {
       try {
-        const chainId = chainIds || "cosmoshub-4";
-
         if (!window.keplr) {
           throw new Error("Keplr extension is not installed");
         }
@@ -204,12 +226,20 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       } catch (error) {
         console.error("Error initializing Cosmos client:", error);
       }
+    } else {
+      alert("No RPC URL found. Please check your network configuration.");
     }
+  };
+
+  // Function to handle wallet connection
+  const handleConnectWallet = async () => {
+    const chainId = chainIds || "cosmoshub-4";
+    await initializeCosmosClient(chainId);
   };
 
   useEffect(() => {
     addNetwork();
-    initializeCosmosClient();
+    // initializeCosmosClient();
   }, [networkDetails]);
 
   const web3 = new Web3(window.ethereum);
@@ -347,6 +377,18 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   return (
     <>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
+        <div className="flex justify-between items-center mb-6 px-4 py-2 shadow-sm rounded-lg">
+          <h2 className="lg:text-xl font-semibold text-gray-800 flex items-center space-x-3">
+            <FontAwesomeIcon icon={faTachometerAlt} className="text-blue-500" />
+            <span>Create & Innovate</span>
+          </h2>
+          <button
+            onClick={handleConnectWallet}
+            className="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg shadow-lg transform transition duration-200 ease-in-out hover:scale-105 hover:shadow-xl"
+          >
+            Connect Wallet
+          </button>
+        </div>
         <ul className="whitespace-normal break-words lg:text-lg">
           {components.map((component, index) => (
             <li key={index} className="mb-4">
@@ -365,7 +407,17 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                   {(() => {
                     switch (component.type) {
                       case "text":
-                        return <TextOutput data={data[component.id]} />;
+                        // return <TextOutput data={data[component.id]} />;
+                        <div
+                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                            style={{
+                              ...(component.config && typeof component.config.styles === 'object'
+                                ? component.config.styles
+                                : {}),
+                            }}
+                          >
+                           <TextOutput data={data[component.id]} />
+                          </div>
                       case "json":
                         return (
                           <pre
@@ -382,10 +434,27 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                           </pre>
                         );
                       case "table":
-                        return <Table data={data[component.id]} />;
+                        // return <Table data={data[component.id]} />;
+                        return (
+                          <div
+                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                            style={{
+                              ...(component.config && typeof component.config.styles === 'object'
+                                ? component.config.styles
+                                : {}),
+                            }}
+                          >
+                            <Table data={data[component.id]} />
+                          </div>
+                        );
                       case "graph":
                         return (
-                          <div>
+                          <div style={{
+                            ...(component.config && typeof component.config.styles === 'object'
+                              ? component.config.styles
+                              : {}),
+                          }}
+                          >
                             <Graph
                               key={`graph-${component.id}`}
                               output={data[component.id]}
@@ -394,6 +463,32 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                               }
                               graphId={`graph-container-${component.id}`}
                             />
+                          </div>
+                        );
+                      case "description":
+                        return (
+                          <div
+                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                            style={{
+                              ...(component.config && typeof component.config.styles === 'object'
+                                ? component.config.styles
+                                : {}),
+                            }}
+                          >
+                            <DescriptionComponent data={data[component.id]} />
+                          </div>
+                        );
+                        case "transactionLink":
+                        return (
+                          <div
+                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                            style={{
+                              ...(component.config && typeof component.config.styles === 'object'
+                                ? component.config.styles
+                                : {}),
+                            }}
+                          >
+                            <TransactionLink data={data[component.id]} />
                           </div>
                         );
                       default:
@@ -462,6 +557,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                 )}
               {component.type === "swap" && (
                 <div
+                  className="mt-2"
                   style={{
                     ...(component.config && typeof component.config.styles === 'object'
                       ? component.config.styles
@@ -672,12 +768,12 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                           .value}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 flex items-center">
+                  {/* <p className="text-sm text-gray-500 flex items-center">
                     <svg className="w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2l4 -4" />
                     </svg>
                     <span>Recommended: <strong className="text-blue-600">{component.config.sliderConfig.value}</strong></span>
-                  </p>
+                  </p> */}
                 </div>
               )}
               {component.type === "walletDropdown" && (

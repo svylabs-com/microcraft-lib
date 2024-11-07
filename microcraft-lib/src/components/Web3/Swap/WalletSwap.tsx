@@ -15,13 +15,12 @@ interface Props {
 
 const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
 
-  const fromTokens = configurations.tokens.filter((token: any) =>
+  const fromTokens = configurations.tokens.filter(token =>
     token.listType === "from" || token.listType === "both"
   );
-  
-  const toTokens = configurations.tokens.filter((token: any) =>
+  const toTokens = configurations.tokens.filter(token =>
     token.listType === "to" || token.listType === "both"
-  );  
+  );
 
   const defaultFromToken = fromTokens[0] || null; // Set to the first token in fromTokens as default
   const defaultToToken = toTokens[0] || null; // Set to the first token in toTokens as default
@@ -66,7 +65,6 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
         const accounts = await offlineSigner.getAccounts();
         address = accounts[0].address;
         console.log("KEPLR address:- ", address);
-        // Fetch Cosmos balance (e.g., ATOM)
         const client = await window.getOfflineSigner(chainId);
         const balances = await client.getBalance(address, "uatom");
         balance = (balances?.amount / 1e6).toString();
@@ -76,6 +74,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
       }
 
       setMaxAmount(balance.toString());
+      setMaxAmount("30");
       console.log("maxAmount", maxAmount);
     } catch (error) {
       console.error("Error fetching user address or balance:", error);
@@ -103,7 +102,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
     }
   }, [configurations, data]);
 
-  const selectToken = (side: "from" | "to", token: any) => {
+  const selectToken = (side, token) => {
     const updatedTrade = { ...currentTrade, [side]: token };
     setCurrentTrade(updatedTrade);
     if (side === "from") setFromAmount("");
@@ -152,22 +151,21 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
   // console.log(fromAmount);
 
   return (
-    <div className="container mx-auto py-4">
-      <div className="max-w-xl mx-auto bg-gradient-to-br from-slate-500 to-slate-700 rounded-lg shadow-lg p-6">
-        <h4 className="text-lg lg:text-xl font-semibold mb-4 text-white text-center">{configurations?.heading}</h4>
+    <div className="container mx-auto p-6 border rounded shadow-sm">
+      {/* <div className="mx-auto bg-gradient-to-br from-slate-500 to-slate-700 rounded-lg shadow-lg p-6"> */}
+        <h4 className="text-lg lg:text-xl font-semibold mb-4 text-center">{configurations?.heading}</h4>
         <div className="flex flex-col md:flex-row justify-between">
-          <div className="mb-4">
-            <label className="block text-gray-100">{configurations?.fromTokenLabel}</label>
+          <div className="mb-4 w-full md:w-1/2">
+            <label className="block ">{configurations?.fromTokenLabel}</label>
             <TokensDropdown
-              // tokens={configurations.tokens}
               tokens={fromTokens}
               selectedToken={currentTrade.from}
               onSelect={(token) => selectToken("from", token)}
               blurToken={currentTrade.to}
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-100">{configurations?.amountLabel}</label>
+          <div className="mb-4 w-full md:w-1/2">
+            <label className="block ">{configurations?.amountLabel}</label>
             <input
               type="number"
               value={fromAmount}
@@ -176,27 +174,26 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
               placeholder="Enter amount"
               max={maxAmount}
             />
-            <span className="text-gray-400 text-sm mt-1 block">
+            <span className="text-sm mt-1 block">
               Max amount: {maxAmount}
             </span>
           </div>
         </div>
-        <div className="flex justify-center text-white">
+        <div className="flex justify-center">
           <FiArrowDownCircle size={30} className="animate-bounce" />
         </div>
         <div className="flex flex-col md:flex-row justify-between">
-          <div className="mb-4">
-            <label className="block text-gray-100">{configurations?.toTokenLabel}</label>
+          <div className="mb-4 w-full md:w-1/2">
+            <label className="block ">{configurations?.toTokenLabel}</label>
             <TokensDropdown
-              // tokens={configurations.tokens}
               tokens={toTokens}
               selectedToken={currentTrade.to}
               onSelect={(token) => selectToken("to", token)}
               blurToken={currentTrade.from}
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-100">{configurations?.estimatedAmountLabel}</label>
+          <div className="mb-4 w-full md:w-1/2">
+            <label className="block ">{configurations?.estimatedAmountLabel}</label>
             <input
               type="text"
               value={toAmount}
@@ -206,7 +203,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
             />
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 };
