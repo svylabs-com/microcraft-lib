@@ -196,8 +196,10 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
             <input
               type="text"
               value={toAmount}
-              readOnly
-              className="block w-full mt-1 border rounded py-2 px-3 bg-gray-100 text-indigo-700 cursor-not-allowed"
+              onChange={(e) => setToAmount(e.target.value)}
+              // readOnly
+              // className="block w-full mt-1 border rounded py-2 px-3 bg-gray-100 text-indigo-700 cursor-not-allowed"
+              className="block w-full mt-1 border rounded py-2 px-3"
               placeholder="Estimated amount"
             />
           </div>
