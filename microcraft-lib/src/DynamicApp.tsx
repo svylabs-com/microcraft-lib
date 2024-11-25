@@ -20,14 +20,14 @@ import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   components: any[];
-  network?: any;
+  networks?: any;
   contracts?: any;
   data: { [key: string]: any };
   setData: React.Dispatch<React.SetStateAction<{ [key: string]: any }>>;
   debug: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network, contracts }) => {
+const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, networks, contracts }) => {
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
@@ -38,16 +38,16 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
 
   useEffect(() => {
-    // Update network details if available
-    if (network) {
-      setNetworkDetails(network);
+    // Update networks details if available
+    if (networks) {
+      setNetworkDetails(networks);
     }
 
     // Update contract details if available
     if (contracts) {
       setContractDetails(contracts);
     }
-  }, [network, contracts]);
+  }, [networks, contracts]);
 
   console.log("app.TSX-loadedData: ", networkDetails);
   console.log("typeof app.TSX-loadedData: ", typeof networkDetails);
@@ -65,46 +65,46 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       try {
         const provider = new ethers.BrowserProvider(ethereum);
         await ethereum.send("eth_requestAccounts", []);
-        const network = await provider.getNetwork();
-        console.log("Network:", network);
+        const networks = await provider.getNetwork();
+        console.log("networks:", networks);
 
-        if (network && network.chainId && network.name) {
-          setNetworkName(network.name);
-          setChainId(network.chainId.toString());
+        if (networks && networks.chainId && networks.name) {
+          setNetworkName(networks.name);
+          setChainId(networks.chainId.toString());
 
           let isSupported = false;
 
           if (Array.isArray(supportedNetworks)) {
             for (const supportedNetwork of supportedNetworks) {
-              if (supportedNetwork.config.chainId === network.chainId.toString()) {
+              if (supportedNetwork.config.chainId === networks.chainId.toString()) {
                 isSupported = true;
                 break;
               }
             }
           } else if (typeof supportedNetworks === 'object' && supportedNetworks !== null) {
-            if (supportedNetworks.config.chainId === network.chainId.toString()) {
+            if (supportedNetworks.config.chainId === networks.chainId.toString()) {
               isSupported = true;
             }
           }
 
           if (isSupported) {
-            setNetworkStatus(`Connected to ${network.name}`);
+            setNetworkStatus(`Connected to ${networks.name}`);
           } else {
-            setNetworkStatus(`Connected to unsupported network: ${network.name}. Please connect to a supported network.`);
+            setNetworkStatus(`Connected to unsupported networks: ${networks.name}. Please connect to a supported networks.`);
             setAlertOpen(true);
           }
         } else {
-          console.error("Invalid network object:", network);
-          setNetworkStatus('Error getting network. Please check your connection and try again.');
+          console.error("Invalid networks object:", networks);
+          setNetworkStatus('Error getting networks. Please check your connection and try again.');
           setAlertOpen(true);
         }
       } catch (error) {
-        console.error('Error getting network:', error);
-        setNetworkStatus('Error getting network. Please check your connection and try again.');
+        console.error('Error getting networks:', error);
+        setNetworkStatus('Error getting networks. Please check your connection and try again.');
         setAlertOpen(true);
       }
     } else {
-      setNetworkStatus('Not connected to any network. Please connect your wallet.');
+      setNetworkStatus('Not connected to any networks. Please connect your wallet.');
       setAlertOpen(true);
     }
   };
@@ -119,14 +119,14 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       return chainId;
     };
 
-    const validateNetworkParams = (network: any) => {
-      return network.config.chainId && network.config.rpcUrl && network.config.rpcUrl.length > 0;
+    const validateNetworkParams = (networks: any) => {
+      return networks.config.chainId && networks.config.rpcUrl && networks.config.rpcUrl.length > 0;
     };
 
     const addAndSwitchNetwork = async (supportedNetwork: any) => {
       if (!validateNetworkParams(supportedNetwork)) {
-        console.error('Missing required network parameters:', supportedNetwork);
-        setNetworkStatus('Failed to add network. Missing required parameters.');
+        console.error('Missing required networks parameters:', supportedNetwork);
+        setNetworkStatus('Failed to add networks. Missing required parameters.');
         setAlertOpen(true);
         return;
       }
@@ -145,16 +145,16 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         setAlertOpen(false);
         setNetworkStatus(`Connected to ${supportedNetwork.type}`);
       } catch (addError: any) {
-        console.error('Error adding network:', addError);
-        setNetworkStatus(`Failed to add network: ${addError.message}`);
+        console.error('Error adding networks:', addError);
+        setNetworkStatus(`Failed to add networks: ${addError.message}`);
         setAlertOpen(true);
       }
     };
 
     const switchNetwork = async (supportedNetwork: any) => {
       if (!supportedNetwork.config.chainId) {
-        console.error('Missing required network parameter: chainId', supportedNetwork);
-        setNetworkStatus('Failed to switch network. Missing chainId.');
+        console.error('Missing required networks parameter: chainId', supportedNetwork);
+        setNetworkStatus('Failed to switch networks. Missing chainId.');
         setAlertOpen(true);
         return;
       }
@@ -168,11 +168,11 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         setAlertOpen(false);
         setNetworkStatus(`Connected to ${supportedNetwork.type}`);
       } catch (switchError: any) {
-        console.error('Error switching network:', switchError);
+        console.error('Error switching networks:', switchError);
         if (switchError.code === 4902) {
           await addAndSwitchNetwork(supportedNetwork);
         } else {
-          setNetworkStatus(`Failed to switch network: ${switchError.message}`);
+          setNetworkStatus(`Failed to switch networks: ${switchError.message}`);
           setAlertOpen(true);
         }
       }
@@ -186,7 +186,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       await switchNetwork(supportedNetworks);
     } else {
       console.error('No supported networks available.');
-      setNetworkStatus('No supported networks available. Please add a supported network.');
+      setNetworkStatus('No supported networks available. Please add a supported networks.');
       setAlertOpen(true);
     }
   };
@@ -227,7 +227,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         console.error("Error initializing Cosmos client:", error);
       }
     } else {
-      alert("No RPC URL found. Please check your network configuration.");
+      alert("No RPC URL found. Please check your networks configuration.");
     }
   };
 
