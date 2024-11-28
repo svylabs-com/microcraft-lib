@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from 'ethers';
 import Web3 from "web3";
+import { toast } from "react-toastify";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
@@ -15,8 +16,6 @@ import Alert from "./components/Renderer/Alert";
 import { ERC20_ABI } from './components/ABI/ERC20_ABI';
 import { ERC721_ABI } from './components/ABI/ERC721_ABI';
 import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   components: any[];
@@ -31,6 +30,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [networkName, setNetworkName] = useState('');
   const [chainId, setChainId] = useState('');
@@ -49,62 +50,28 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     }
   }, [networks, contracts]);
 
-  console.log("app.TSX-loadedData: ", networkDetails);
+  console.log("app.TSX-loadedData networkDetails: ", networkDetails);
   console.log("typeof app.TSX-loadedData: ", typeof networkDetails);
   console.log("app.TSX-loadedData: ", contractDetails);
   console.log("typeof app.TSX-loadedData: ", typeof contractDetails);
 
   const supportedNetworks = networkDetails || [];
-  const networkType = Array.isArray(supportedNetworks) ? supportedNetworks[0]?.type : supportedNetworks.type;
-  const rpcUrls = Array.isArray(supportedNetworks) ? supportedNetworks[0]?.config?.rpcUrl : supportedNetworks.config?.rpcUrl;
-  const chainIds = Array.isArray(supportedNetworks) ? supportedNetworks[0]?.config?.chainId : supportedNetworks.config?.chainId;
+  const networkType = supportedNetworks.length > 0 ? supportedNetworks[0]?.type : undefined;
+  const rpcUrls = supportedNetworks.length > 0 ? supportedNetworks[0]?.config?.rpcUrl : undefined;
+  const chainIds = supportedNetworks.length > 0 ? supportedNetworks[0]?.config?.chainId : undefined;
 
-  const addNetwork = async () => {
-    const { ethereum } = window;
-    if (ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(ethereum);
-        await ethereum.send("eth_requestAccounts", []);
-        const networks = await provider.getNetwork();
-        console.log("networks:", networks);
-
-        if (networks && networks.chainId && networks.name) {
-          setNetworkName(networks.name);
-          setChainId(networks.chainId.toString());
-
-          let isSupported = false;
-
-          if (Array.isArray(supportedNetworks)) {
-            for (const supportedNetwork of supportedNetworks) {
-              if (supportedNetwork.config.chainId === networks.chainId.toString()) {
-                isSupported = true;
-                break;
-              }
-            }
-          } else if (typeof supportedNetworks === 'object' && supportedNetworks !== null) {
-            if (supportedNetworks.config.chainId === networks.chainId.toString()) {
-              isSupported = true;
-            }
-          }
-
-          if (isSupported) {
-            setNetworkStatus(`Connected to ${networks.name}`);
-          } else {
-            setNetworkStatus(`Connected to unsupported networks: ${networks.name}. Please connect to a supported networks.`);
-            setAlertOpen(true);
-          }
-        } else {
-          console.error("Invalid networks object:", networks);
-          setNetworkStatus('Error getting networks. Please check your connection and try again.');
-          setAlertOpen(true);
-        }
-      } catch (error) {
-        console.error('Error getting networks:', error);
-        setNetworkStatus('Error getting networks. Please check your connection and try again.');
-        setAlertOpen(true);
-      }
+  const handleNetworkChange = (networkType: string) => {
+    if (networkType === "") {
+      // If the user selects the default option, reset the connection
+      setSelectedNetwork(null);
+      setIsConnected(false);
+      setNetworkStatus('');
     } else {
-      setNetworkStatus('Not connected to any networks. Please connect your wallet.');
+      // Set the selected network and mark as connected
+      setSelectedNetwork(networkType);
+      setNetworkStatus(
+        `The application requires access to the <span class="font-bold text-blue-700">${networkType}</span> network. To proceed, please click the <span class="font-bold text-green-800">Switch Network</span> button.`
+      );
       setAlertOpen(true);
     }
   };
@@ -119,75 +86,92 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       return chainId;
     };
 
-    const validateNetworkParams = (networks: any) => {
-      return networks.config.chainId && networks.config.rpcUrl && networks.config.rpcUrl.length > 0;
+    const selectedNetworkConfig = supportedNetworks.find((network: any) => network.type === selectedNetwork);
+
+    if (!selectedNetworkConfig) {
+      setNetworkStatus('No network selected.');
+      setAlertOpen(true);
+      return;
+    }
+
+    const { chainId, rpcUrl, exploreUrl } = selectedNetworkConfig.config;
+
+    // Define a mapping for native currency based on network type
+    const nativeCurrencyMapping = {
+      ethereum: {
+        symbol: 'ETH',
+        decimals: 18,
+      },
+      polygon: {
+        symbol: 'MATIC',
+        decimals: 18,
+      },
+      'binance-smart-chain': {
+        symbol: 'BNB',
+        decimals: 18,
+      },
+      'citrea-bitcoin': {
+        symbol: 'BTC',
+        decimals: 18,
+      },
+      'citrus-bitcoin': {
+        symbol: 'CBTC',
+        decimals: 8,
+      },
     };
 
-    const addAndSwitchNetwork = async (supportedNetwork: any) => {
-      if (!validateNetworkParams(supportedNetwork)) {
-        console.error('Missing required networks parameters:', supportedNetwork);
-        setNetworkStatus('Failed to add networks. Missing required parameters.');
-        setAlertOpen(true);
-        return;
-      }
-
-      const chainId = formatChainId(supportedNetwork.config.chainId);
-      try {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId,
-            chainName: supportedNetwork.type,
-            rpcUrls: [supportedNetwork.config.rpcUrl],
-            blockExplorerUrls: [supportedNetwork.config.exploreUrl],
-          }],
-        });
-        setAlertOpen(false);
-        setNetworkStatus(`Connected to ${supportedNetwork.type}`);
-      } catch (addError: any) {
-        console.error('Error adding networks:', addError);
-        setNetworkStatus(`Failed to add networks: ${addError.message}`);
-        setAlertOpen(true);
-      }
+    // Retrieve the native currency based on the selected network type
+    const nativeCurrency = nativeCurrencyMapping[selectedNetworkConfig?.type as keyof typeof nativeCurrencyMapping] || {
+      symbol: 'ETH', // Default to ETH if not found
+      decimals: 18,
     };
 
-    const switchNetwork = async (supportedNetwork: any) => {
-      if (!supportedNetwork.config.chainId) {
-        console.error('Missing required networks parameter: chainId', supportedNetwork);
-        setNetworkStatus('Failed to switch networks. Missing chainId.');
-        setAlertOpen(true);
-        return;
-      }
+    try {
+      // Attempt to switch to the selected network
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: formatChainId(chainId) }],
+      });
 
-      const chainId = formatChainId(supportedNetwork.config.chainId);
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId }],
-        });
-        setAlertOpen(false);
-        setNetworkStatus(`Connected to ${supportedNetwork.type}`);
-      } catch (switchError: any) {
-        console.error('Error switching networks:', switchError);
-        if (switchError.code === 4902) {
-          await addAndSwitchNetwork(supportedNetwork);
-        } else {
-          setNetworkStatus(`Failed to switch networks: ${switchError.message}`);
+      // If successful, update the state
+      setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+      setIsConnected(true);
+      toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
+      setAlertOpen(false);
+
+    } catch (switchError: any) {
+      console.error('Error switching networks:', switchError);
+
+      // If the error is due to the network not being added yet
+      if (switchError.code === 4902) {
+        try {
+          // Add the network to MetaMask
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: formatChainId(chainId),
+              chainName: selectedNetworkConfig.type,
+              rpcUrls: [rpcUrl],
+              blockExplorerUrls: [exploreUrl],
+              nativeCurrency: nativeCurrency,
+            }],
+          });
+
+          setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+          setIsConnected(true);
+          setAlertOpen(false);
+        } catch (addError: any) {
+          console.error('Error adding network:', addError);
+          setNetworkStatus(`Failed to add network: ${addError.message}`);
+          setIsConnected(false);
           setAlertOpen(true);
         }
+      } else {
+        // Handle other errors
+        setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
+        setIsConnected(false);
+        setAlertOpen(true);
       }
-    };
-
-    if (Array.isArray(supportedNetworks) && supportedNetworks.length > 0) {
-      await addNetwork();
-      await switchNetwork(supportedNetworks[0]);
-    } else if (typeof supportedNetworks === 'object' && supportedNetworks !== null) {
-      await addNetwork();
-      await switchNetwork(supportedNetworks);
-    } else {
-      console.error('No supported networks available.');
-      setNetworkStatus('No supported networks available. Please add a supported networks.');
-      setAlertOpen(true);
     }
   };
 
@@ -231,16 +215,9 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     }
   };
 
-  // Function to handle wallet connection
-  const handleConnectWallet = async () => {
-    const chainId = chainIds || "cosmoshub-4";
-    await initializeCosmosClient(chainId);
-  };
-
-  useEffect(() => {
-    addNetwork();
-    // initializeCosmosClient();
-  }, [networkDetails]);
+  // useEffect(() => {
+  //   // initializeCosmosClient();
+  // }, [networkDetails]);
 
   const web3 = new Web3(window.ethereum);
 
@@ -322,7 +299,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       const config = mcLib.web3.config;
       const ethers = mcLib.web3;
       const result = await eval(code);
-      
+
       // Update state with the merged result
       setData(prevData => {
         const updatedData = { ...prevData, ...result };
@@ -330,7 +307,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         debug(updatedData);  // Pass updatedData to debug function
         return updatedData;
       });
-  
+
     } catch (error) {
       console.error("Error executing onChange code:", error);
       debug(`Error: ${error}`);
@@ -359,7 +336,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       const ethers = mcLib.web3;
       console.log(config);
       const result = await eval(code);
-      
+
       // Update state with the merged result
       setData(prevData => {
         // const updatedData = { ...prevData, ...result };
@@ -380,18 +357,63 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   return (
     <>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
-        <div className="flex justify-between items-center mb-6 px-4 py-2 shadow-sm rounded-lg">
-          <h2 className="lg:text-xl font-semibold text-gray-800 flex items-center space-x-3">
-            <FontAwesomeIcon icon={faTachometerAlt} className="text-blue-500" />
-            <span>Create & Innovate</span>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
+            {isConnected ? (
+              <span className="flex items-center text-green-600 dark:text-green-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5 mr-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Connected to {selectedNetwork}
+              </span>
+            ) : (
+              <span className="flex items-center text-red-600 dark:text-red-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5 mr-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Not connected
+              </span>
+            )}
           </h2>
-          <button
-            onClick={handleConnectWallet}
-            className="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg shadow-lg transform transition duration-200 ease-in-out hover:scale-105 hover:shadow-xl"
+          <select
+            className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => handleNetworkChange(e.target.value)}
+            value={selectedNetwork || ""}
+            title="Select Network"
           >
-            Connect Wallet
-          </button>
+            <option value="" className="text-gray-400">
+              Select network
+            </option>
+            {networkDetails.map((network: any) => (
+              <option key={network.type} value={network.type} className="text-gray-800">
+                {network.type}
+              </option>
+            ))}
+          </select>
         </div>
+
         <ul className="whitespace-normal break-words lg:text-lg">
           {components.map((component, index) => (
             <li key={index} className="mb-4">
@@ -412,15 +434,15 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       case "text":
                         // return <TextOutput data={data[component.id]} />;
                         <div
-                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                           <TextOutput data={data[component.id]} />
-                          </div>
+                          className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                          style={{
+                            ...(component.config && typeof component.config.styles === 'object'
+                              ? component.config.styles
+                              : {}),
+                          }}
+                        >
+                          <TextOutput data={data[component.id]} />
+                        </div>
                       case "json":
                         return (
                           <pre
@@ -481,7 +503,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                             <DescriptionComponent data={data[component.id]} />
                           </div>
                         );
-                        case "transactionLink":
+                      case "transactionLink":
                         return (
                           <div
                             className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
@@ -551,7 +573,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                                 handleInputChange(component.id, updatedData, eventCode, "onChange");
                               }
                             });
-                          } 
+                          }
                           handleInputChange(component.id, updatedData);
                         });
                       }}
@@ -567,7 +589,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       : {}),
                   }}
                 >
-                   <Swap
+                  <Swap
                     configurations={component.config.swapConfig}
                     onSwapChange={(swapData: any) => {
                       components.forEach((elements) => {
@@ -835,7 +857,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         <Alert
           isOpen={alertOpen}
           onClose={() => setAlertOpen(false)}
-          networkStatus={networkStatus}
+          networkStatus={<span dangerouslySetInnerHTML={{ __html: networkStatus }} />}
           onSwitchNetwork={switchToSupportedNetwork}
         />
       )}
