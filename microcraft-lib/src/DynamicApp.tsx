@@ -503,19 +503,27 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                             <DescriptionComponent data={data[component.id]} />
                           </div>
                         );
-                      case "transactionLink":
-                        return (
-                          <div
-                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                            <TransactionLink data={data[component.id]} />
-                          </div>
-                        );
+                        case "transactionLink":
+                          // console.log("Component:", component);
+                          // console.log("Component.config:", component.config.transactionConfig);
+                          // console.log("Component.config:", component.config.transactionConfig.type);
+                          const preparedData = {
+                            type: component.config.transactionConfig.type || "",
+                            value: component.config.transactionConfig.value || "", 
+                            baseUrl: component.config.transactionConfig.baseUrl || "https://etherscan.io",
+                          };
+                          return (
+                            <div
+                              className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                              style={{
+                                ...(component.config && typeof component.config.styles === 'object'
+                                  ? component.config.styles
+                                  : {}),
+                              }}
+                            >
+                              <TransactionLink data={preparedData} />
+                            </div>
+                          );
                       default:
                         return null;
                     }
