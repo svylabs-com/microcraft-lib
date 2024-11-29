@@ -94,7 +94,7 @@ function testDynamicApp() {
       data={mockProps.data}
       setData={mockProps.setData}
       contracts={mockProps.contractDetails}
-      network={mockProps.networkDetails}
+      networks={mockProps.networkDetails}
       debug={mockProps.debug}
     />,
     container

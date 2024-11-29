@@ -5,7 +5,8 @@ interface DescriptionComponentProps {
 }
 
 const DescriptionComponent: React.FC<DescriptionComponentProps> = ({ data }) => {
-  return <p>{data ? data : ""}</p>;
+  // console.log("data", data);
+  return <p>{data ? data : "Data Not Available"}</p>;
 };
 
 export default DescriptionComponent;
