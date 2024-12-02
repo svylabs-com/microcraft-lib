@@ -7,7 +7,7 @@ The **Microcraft Lib** package allows you to embed a dynamic Web3 UI into your f
 - **Wallet Integration**: 
   - Metamask for Ethereum
   - Keplr Wallet for Cosmos (WIP)
-- **Network Integration**: 
+- **Networks Integration**: 
   - Ethereum 
   - Cosmos (WIP)
 
