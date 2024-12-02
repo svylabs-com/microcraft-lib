@@ -103,14 +103,24 @@ const app = {
       "abi": []
     }
   ],
-  network: {
-    "type": "ethereum",
-    "config": {
-      "rpcUrl": "your_rpc_url",
-      "chainId": "your_chain_id",
-      "exploreUrl": "your_explore_url"
+  networks: [
+    {
+      "type": "ethereum",
+      "config": {
+        "rpcUrl": "your_rpc_url",
+        "chainId": "your_chain_id",
+        "exploreUrl": "your_explore_url"
+      }
+    },
+    {
+      "type": "cosmos",
+      "config": {
+        "rpcUrl": "your_cosmos_rpc_url",
+        "chainId": "your_cosmos_chain_id",
+        "exploreUrl": "your_cosmos_explore_url"
+      }
     }
-  }
+  ]
 }
 
 // Initial data for app elements(components)
@@ -130,7 +140,7 @@ const [outputCode, setOutputCode] = useState<Output | string>();
   data={data}
   setData={setDataCallback}
   contracts={app.contracts}
-  network={app.network}
+  networks={app.networks}
   debug={setOutputCode}
 />
 ```
@@ -140,7 +150,7 @@ const [outputCode, setOutputCode] = useState<Output | string>();
 - **Contract Details**: Includes details like the contract name, address, template, and ABI for smart contract interaction.
 - **Network Details**: Configures the network type and RPC, chain ID, and explorer URL for connection.
 
-You can render the UI dynamically using the `<DynamicApp />` component, which takes in the `components`, `data`, `contracts`, and `network` details. The app also supports a `debug` function to monitor output data.
+You can render the UI dynamically using the `<DynamicApp />` component, which takes in the `components`, `data`, `contracts`, and `networks` details. The app also supports a `debug` function to monitor output data.
 
 --- 
 
