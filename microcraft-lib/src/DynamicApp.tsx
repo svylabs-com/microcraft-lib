@@ -406,11 +406,15 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
             <option value="" className="text-gray-400">
               Select network
             </option>
-            {networkDetails.map((network: any) => (
-              <option key={network.type} value={network.type} className="text-gray-800">
-                {network.type}
-              </option>
-            ))}
+            {networkDetails && networkDetails.length > 0 ? (
+              networkDetails.map((network: any) => (
+                <option key={network.type} value={network.type} className="text-gray-800">
+                  {network.type}
+                </option>
+              ))
+            ) : (
+              <option className="text-gray-400">No networks available</option>
+            )}
           </select>
         </div>
 
