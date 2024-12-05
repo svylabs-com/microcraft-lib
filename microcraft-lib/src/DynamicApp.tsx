@@ -266,8 +266,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     components.forEach((component) => {
       if (component.events) {
         component.events.forEach((event: any) => {
-          if (event.event === "onLoad" && event.eventsCode) {
-            executeOnLoadCode(event.eventsCode);
+          if (event.type === "onLoad" && event.code) {
+            executeOnLoadCode(event.code);
           }
         });
       }
@@ -553,8 +553,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       components.forEach((elements) => {
                         if (elements.events) {
                           elements.events.forEach((event: any) => {
-                            if (event.event === "onChange") {
-                              const eventCode = event.eventsCode;
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
                               handleInputChange(component.id, e.target.value, eventCode, "onChange");
                             }
                           });
@@ -580,8 +580,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                         components.forEach((elements) => {
                           if (elements.events) {
                             elements.events.forEach((event: any) => {
-                              if (event.event === "onChange") {
-                                const eventCode = event.eventsCode;
+                              if (event.type === "onChange") {
+                                const eventCode = event.code;
                                 handleInputChange(component.id, updatedData, eventCode, "onChange");
                               }
                             });
@@ -607,8 +607,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       components.forEach((elements) => {
                         if (elements.events) {
                           elements.events.forEach((event: any) => {
-                            if (event.event === "onChange") {
-                              const eventCode = event.eventsCode;
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
                               handleInputChange(component.id, swapData, eventCode, "onChange");
                             }
                           });
@@ -629,8 +629,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                     components.forEach((elements) => {
                       if (elements.events) {
                         elements.events.forEach((event: any) => {
-                          if (event.event === "onChange") {
-                            const eventCode = event.eventsCode;
+                          if (event.type === "onChange") {
+                            const eventCode = event.code;
                             handleInputChange(component.id, e.target.value, eventCode, "onChange");
                           }
                         });
@@ -674,8 +674,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                                 components.forEach((elements) => {
                                   if (elements.events) {
                                     elements.events.forEach((event: any) => {
-                                      if (event.event === "onChange") {
-                                        const eventCode = event.eventsCode;
+                                      if (event.type === "onChange") {
+                                        const eventCode = event.code;
                                         handleInputChange(component.id, e.target.value, eventCode, "onChange");
                                       }
                                     });
@@ -732,8 +732,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                                 components.forEach((elements) => {
                                   if (elements.events) {
                                     elements.events.forEach((event: any) => {
-                                      if (event.event === "onChange") {
-                                        const eventCode = event.eventsCode;
+                                      if (event.type === "onChange") {
+                                        const eventCode = event.code;
                                         handleInputChange(component.id, updatedValue, eventCode, "onChange");
                                       }
                                     });
@@ -789,8 +789,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                         components.forEach((elements) => {
                           if (elements.events) {
                             elements.events.forEach((event: any) => {
-                              if (event.event === "onChange") {
-                                const eventCode = event.eventsCode;
+                              if (event.type === "onChange") {
+                                const eventCode = event.code;
                                 handleInputChange(component.id, e.target.value, eventCode, "onChange");
                               }
                             });
@@ -821,8 +821,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       components.forEach((elements) => {
                         if (elements.events) {
                           elements.events.forEach((event: any) => {
-                            if (event.event === "onChange") {
-                              const eventCode = event.eventsCode;
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
                               handleInputChange(component.id, { address, balance: null }, eventCode, "onChange");
                             }
                           });
@@ -834,8 +834,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       components.forEach((elements) => {
                         if (elements.events) {
                           elements.events.forEach((event: any) => {
-                            if (event.event === "onChange") {
-                              const eventCode = event.eventsCode;
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
                               handleInputChange(component.id, { address: data[component.id]?.address || "", balance }, eventCode, "onChange");
                             }
                           });

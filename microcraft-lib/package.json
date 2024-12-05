@@ -1,7 +1,7 @@
 {
   "name": "@svylabs/microcraft-lib",
-  "version": "1.3.2",
-  "description": "create an npm library and test it",
+  "version": "1.4.0",
+  "description": "A library for building intent based frontends for dapps",
   "main": "src/DynamicApp.tsx",
   "scripts": {
     "build": "tsc",

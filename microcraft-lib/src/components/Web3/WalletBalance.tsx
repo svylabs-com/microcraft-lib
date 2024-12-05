@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import { StargateClient } from "@cosmjs/stargate";
-import { StargateClient, Account } from "@cosmjs/stargate";
+//import { StargateClient, Account } from "@cosmjs/stargate";
 
 interface WalletBalanceProps {
   address: string;
