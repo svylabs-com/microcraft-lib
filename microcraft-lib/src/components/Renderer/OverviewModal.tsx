@@ -16,7 +16,7 @@ interface NetworkConfig {
     exploreUrl: string;
 }
 
-interface NetworkDetails {
+interface NetworkDetail {
     type?: string;
     config?: Partial<NetworkConfig>;
 }
@@ -24,7 +24,7 @@ interface NetworkDetails {
 interface FormData {
     selectedContracts?: string[];
     contractDetails?: ContractDetail[];
-    networkDetails?: NetworkDetails;
+    networkDetails?: NetworkDetail[];
     teamId?: string;
     privacy?: string;
 }
@@ -33,11 +33,12 @@ interface ContractDetailsProps {
     onClose: () => void;
 }
 
-const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
+const OverviewModal: React.FC<ContractDetailsProps> = ({ onClose }) => {
     const [formData, setFormData] = useState<FormData>({
         selectedContracts: [],
         contractDetails: [],
-        networkDetails: { type: "", config: { rpcUrl: "", chainId: "", exploreUrl: "" } },
+        // networkDetails: { type: "", config: { rpcUrl: "", chainId: "", exploreUrl: "" } },
+        networkDetails: [],
         teamId: "",
         privacy: ""
     });
@@ -107,28 +108,32 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
                             <ul className="list-disc list-inside">
                                 {contractDetails.map((detail, index) => (
                                     <li key={index} className="text-gray-700 overflow-scroll">
-                                        Name: {detail.name || "N/A"}, Address: {detail.address || "N/A"}
+                                        <strong>Name:</strong> {detail.name || "N/A"}, <strong>Address:</strong> {detail.address || "N/A"}
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     )}
 
-                    {networkDetails && networkDetails.type && (
+                    {networkDetails && networkDetails.length > 0 && (
                         <div className="mb-4">
                             <h3 className="text-[#727679] font-semibold text-lg">Network Details:</h3>
-                            <p className="text-gray-700">
-                                Type: {networkDetails.type || "N/A"}
-                            </p>
-                            <p className="text-gray-700">
-                                RPC URL: {networkDetails.config?.rpcUrl || "N/A"}
-                            </p>
-                            <p className="text-gray-700">
-                                Chain ID: {networkDetails.config?.chainId || "N/A"}
-                            </p>
-                            <p className="text-gray-700">
-                                Explorer URL: {networkDetails.config?.exploreUrl || "N/A"}
-                            </p>
+                            {networkDetails.map((network, index) => (
+                                <div key={index} className="mb-2 border-b border-gray-300 pb-2 overflow-scroll">
+                                    <p className="text-gray-700">
+                                        <strong>Type:</strong> {network.type || "N/A"}
+                                    </p>
+                                    <p className="text-gray-700">
+                                        <strong>RPC URL:</strong> {network.config?.rpcUrl || "N/A"}
+                                    </p>
+                                    <p className="text-gray-700">
+                                        <strong>Chain ID:</strong> {network.config?.chainId || "N/A"}
+                                    </p>
+                                    <p className="text-gray-700">
+                                        <strong>Explorer URL:</strong> {network.config?.exploreUrl || "N/A"}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -137,4 +142,4 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ onClose }) => {
     );
 };
 
-export default ContractDetails;
+export default OverviewModal;

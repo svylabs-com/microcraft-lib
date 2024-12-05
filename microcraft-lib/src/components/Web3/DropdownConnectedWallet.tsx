@@ -4,7 +4,7 @@ import { ChainInfo } from "@keplr-wallet/types";
 
 
 interface DropdownConnectedWalletProps {
-  configurations: any;
+  configurations: any[];
   onSelectAddress: (address: string) => void;
   onUpdateBalance: (balance: number) => void; //del
 }
@@ -78,25 +78,16 @@ const DropdownConnectedWallet: React.FC<DropdownConnectedWalletProps> = ({
   // console.log(config?.config?.exploreUrl)
 
   useEffect(() => {
-    const parseConfigurations = (configurationsString: any) => {
-      // Remove any bad control characters from the string
-      const cleanedString = configurationsString.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
-      try {
-        setConfig(JSON.parse(cleanedString));
-      } catch (error) {
-        console.error("Error parsing configurations:", error);
-      }
-    };
-
-    if (typeof configurations === "string") {
-      parseConfigurations(configurations);
-    } else if (typeof configurations === "object") {
-      setConfig(configurations);
+    // Select the first network in the array
+    if (configurations && configurations.length > 0) {
+      setConfig(configurations[0]);
     } else {
-      console.warn("Configurations are not a valid string or object.");
+      console.warn("No configurations available.");
     }
   }, [configurations]);
+  
   console.log("configurations:-> ", config)
+  // console.log("config?.type?.toLowerCase():-> ", config?.type?.toLowerCase());
 
   useEffect(() => {
     const fetchUserAddress = async () => {
