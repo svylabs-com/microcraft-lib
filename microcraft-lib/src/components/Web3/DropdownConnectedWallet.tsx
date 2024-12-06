@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import WalletBalance from "./WalletBalance";
 import { ChainInfo } from "@keplr-wallet/types";
+import { MCComponentProps } from "./MCProps";
 
-
-interface DropdownConnectedWalletProps {
+interface DropdownConnectedWalletProps extends MCComponentProps {
   configurations: any[];
   onSelectAddress: (address: string) => void;
   onUpdateBalance: (balance: number) => void; //del
@@ -69,6 +69,7 @@ const DropdownConnectedWallet: React.FC<DropdownConnectedWalletProps> = ({
   configurations,
   onSelectAddress,
   onUpdateBalance, //del
+  context,
 }) => {
   console.log(configurations)
   const [config, setConfig] = useState<any | null>(null);
@@ -102,16 +103,16 @@ const DropdownConnectedWallet: React.FC<DropdownConnectedWalletProps> = ({
 
         let address = "";
 
-        if (networkType === "ethereum" && window.ethereum) {
+        if (networkType === "ethereum" && context.connected && window.ethereum) {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           const accounts = await window.ethereum.request({
             method: "eth_accounts",
           });
           address = accounts[0];
-        } else if (networkType === "mina" && window.mina) {
+        } else if (networkType === "mina" && context.connected && window.mina) {
           const accounts = await window.mina.requestAccounts();
           address = accounts[0];
-        } else if (networkType === "keplr" && window.keplr) {
+        } else if (networkType === "keplr" && context.connected && window.keplr) {
           const chainInfo = getChainInfo(config);
 
           // Enable the chain using chainId

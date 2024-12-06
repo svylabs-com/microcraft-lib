@@ -5,15 +5,16 @@ import BigNumber from "bignumber.js";
 import TokensDropdown from "./TokensDropdown";
 import { FiArrowDownCircle } from "react-icons/fi";
 import Web3 from "web3";
+import { MCComponentProps } from "../MCProps";
 // const web3 = new Web3(Web3.givenProvider);
 
-interface Props {
+interface Props extends MCComponentProps {
   configurations: any;
   onSwapChange: any;
   data: any;
 }
 
-const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
+const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) => {
 
   const fromTokens = configurations.tokens.filter((token: any) =>
     token.listType === "from" || token.listType === "both"
@@ -40,12 +41,12 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
   const web3 = new Web3(Web3.givenProvider);
 
   // Fetch user address and balance
-  const fetchUserAddressAndBalance = async () => {
+  const fetchUserAddressAndBalance = async () => {  
     try {
       let address = "";
       let balance = "0";
 
-      if (window.ethereum) {
+      if (context.connected && window.ethereum) {
         // Ethereum wallet
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const accounts = await window.ethereum.request({ method: "eth_accounts" });
@@ -53,12 +54,12 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data }) => {
         console.log("ETHEREUM address:- ", address);
         const rawBalance = await web3.eth.getBalance(address);
         balance = web3.utils.fromWei(rawBalance.toString(), "ether"); // Convert to Ether and ensure it's a string
-      } else if (window.mina) {
+      } else if (context.connected && window.mina) {
         // Mina wallet
         const accounts = await window.mina.requestAccounts();
         address = accounts[0];
         console.log("Mina address:- ", address);
-      } else if (window.keplr) {
+      } else if (context.connected && window.keplr) {
         // Keplr wallet (Cosmos-based)
         const chainId = "cosmoshub-4";
         await window.keplr.enable(chainId);

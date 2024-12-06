@@ -37,6 +37,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [chainId, setChainId] = useState('');
   const [networkStatus, setNetworkStatus] = useState<string>('');
   const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
+  const [context, setContext] = useState<any>({});
 
   useEffect(() => {
     // Update networks details if available
@@ -65,6 +66,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       // If the user selects the default option, reset the connection
       setSelectedNetwork(null);
       setIsConnected(false);
+      setContext({ ...context, connected: false});
       setNetworkStatus('');
     } else {
       // Set the selected network and mark as connected
@@ -136,6 +138,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       // If successful, update the state
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
       setIsConnected(true);
+      setContext({ ...context, connected: true});
       toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -159,17 +162,20 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
 
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setIsConnected(true);
+          setContext({ ...context, connected: true});
           setAlertOpen(false);
         } catch (addError: any) {
           console.error('Error adding network:', addError);
           setNetworkStatus(`Failed to add network: ${addError.message}`);
           setIsConnected(false);
+          setContext({ ...context, connected: false});
           setAlertOpen(true);
         }
       } else {
         // Handle other errors
         setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
         setIsConnected(false);
+        setContext({ ...context, connected: false});
         setAlertOpen(true);
       }
     }
@@ -617,6 +623,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                       });
                     }}
                     data={data}
+                    context={context}
                   />
                 </div>
               )}
@@ -843,6 +850,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                         handleInputChange(component.id, { address: data[component.id]?.address || "", balance });
                       });
                     }}
+                    context={context}
                   />
                 </div>
               )}

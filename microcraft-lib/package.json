@@ -1,6 +1,6 @@
 {
   "name": "@svylabs/microcraft-lib",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A library for building intent based frontends for dapps",
   "main": "src/DynamicApp.tsx",
   "scripts": {
