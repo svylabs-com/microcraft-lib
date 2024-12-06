@@ -3,10 +3,11 @@ import WalletBalance from "./WalletBalance";
 import { ChainInfo } from "@keplr-wallet/types";
 import { MCComponentProps } from "./MCProps";
 
-interface DropdownConnectedWalletProps extends MCComponentProps {
+interface DropdownConnectedWalletProps {
   configurations: any[];
   onSelectAddress: (address: string) => void;
   onUpdateBalance: (balance: number) => void; //del
+  context: any;
 }
 
 
@@ -71,7 +72,7 @@ const DropdownConnectedWallet: React.FC<DropdownConnectedWalletProps> = ({
   onUpdateBalance, //del
   context,
 }) => {
-  console.log(configurations)
+  console.log(configurations, context);
   const [config, setConfig] = useState<any | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   // console.log(config?.config?.chainId)

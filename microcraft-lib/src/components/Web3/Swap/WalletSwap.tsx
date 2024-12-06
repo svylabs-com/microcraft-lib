@@ -8,13 +8,15 @@ import Web3 from "web3";
 import { MCComponentProps } from "../MCProps";
 // const web3 = new Web3(Web3.givenProvider);
 
-interface Props extends MCComponentProps {
+interface Props {
   configurations: any;
   onSwapChange: any;
   data: any;
+  context: any;
 }
 
 const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) => {
+  console.log("Swap configurations:- ", configurations, context);
 
   const fromTokens = configurations.tokens.filter((token: any) =>
     token.listType === "from" || token.listType === "both"
@@ -86,6 +88,10 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
   useEffect(() => {
     fetchUserAddressAndBalance(); // Fetch once on component mount
   }, []);
+
+  useEffect(() => {
+    fetchUserAddressAndBalance(); // Fetch once on component mount
+  }, [context]);
 
   useEffect(() => {
     fetchUserAddressAndBalance(); // Fetch again when currentTrade.from changes

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from 'ethers';
 import Web3 from "web3";
 import { toast } from "react-toastify";
-import { SigningStargateClient } from "@cosmjs/stargate";
+//import { SigningStargateClient } from "@cosmjs/stargate";
 import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
 import Table from "./components/outputPlacement/TableComponent";
@@ -36,7 +36,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [networkName, setNetworkName] = useState('');
   const [chainId, setChainId] = useState('');
   const [networkStatus, setNetworkStatus] = useState<string>('');
-  const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
+  //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
 
   useEffect(() => {
@@ -49,12 +49,13 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     if (contracts) {
       setContractDetails(contracts);
     }
-  }, [networks, contracts]);
+  }, [networks, contracts, context]);
 
   console.log("app.TSX-loadedData networkDetails: ", networkDetails);
   console.log("typeof app.TSX-loadedData: ", typeof networkDetails);
   console.log("app.TSX-loadedData: ", contractDetails);
   console.log("typeof app.TSX-loadedData: ", typeof contractDetails);
+  console.log("Context: ", context);
 
   const supportedNetworks = networkDetails || [];
   const networkType = supportedNetworks.length > 0 ? supportedNetworks[0]?.type : undefined;
@@ -66,7 +67,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       // If the user selects the default option, reset the connection
       setSelectedNetwork(null);
       setIsConnected(false);
-      setContext({ ...context, connected: false});
+      setContext({ ...context, connected: false, network: null });
       setNetworkStatus('');
     } else {
       // Set the selected network and mark as connected
@@ -130,15 +131,17 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
 
     try {
       // Attempt to switch to the selected network
+      console.log("Attempting to switch network...");
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: formatChainId(chainId) }],
       });
+      console.log("Switched network successfully.");
 
       // If successful, update the state
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
       setIsConnected(true);
-      setContext({ ...context, connected: true});
+      setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
       toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -162,20 +165,20 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
 
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setIsConnected(true);
-          setContext({ ...context, connected: true});
+          setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
           setAlertOpen(false);
         } catch (addError: any) {
           console.error('Error adding network:', addError);
           setNetworkStatus(`Failed to add network: ${addError.message}`);
           setIsConnected(false);
-          setContext({ ...context, connected: false});
+          setContext({ ...context, connected: false, network: null });
           setAlertOpen(true);
         }
       } else {
         // Handle other errors
         setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
         setIsConnected(false);
-        setContext({ ...context, connected: false});
+        setContext({ ...context, connected: false, network: null });
         setAlertOpen(true);
       }
     }
@@ -201,6 +204,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   //   }
   // };
 
+  /*
+  latest...
   const initializeCosmosClient = async (chainId: string) => {
     if (rpcUrls) {
       try {
@@ -220,6 +225,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       alert("No RPC URL found. Please check your networks configuration.");
     }
   };
+  */
 
   // useEffect(() => {
   //   // initializeCosmosClient();
@@ -259,7 +265,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const mcLib = {
     web3: web3,
     contracts: injectedContracts,
-    cosmosClient: cosmosClient,
+    ///cosmosClient: cosmosClient,
   };
   console.log(mcLib);
 
@@ -269,6 +275,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
 
   useEffect(() => {
     console.log(components);
+    console.log("Executing on load code...");
     components.forEach((component) => {
       if (component.events) {
         component.events.forEach((event: any) => {
@@ -278,7 +285,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         });
       }
     });
-  }, [components]);
+  }, [components, context]);
 
   const executeOnLoadCode = async (code: any) => {
     try {
