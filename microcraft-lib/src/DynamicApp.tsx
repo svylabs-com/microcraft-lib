@@ -141,6 +141,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       // If successful, update the state
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
       setIsConnected(true);
+      setChainId(chainId + "");
       setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
       toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
@@ -166,11 +167,13 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setIsConnected(true);
           setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
+          setChainId(chainId + "");
           setAlertOpen(false);
         } catch (addError: any) {
           console.error('Error adding network:', addError);
           setNetworkStatus(`Failed to add network: ${addError.message}`);
           setIsConnected(false);
+          setChainId("");
           setContext({ ...context, connected: false, network: null });
           setAlertOpen(true);
         }
@@ -178,6 +181,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         // Handle other errors
         setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
         setIsConnected(false);
+        setChainId("");
         setContext({ ...context, connected: false, network: null });
         setAlertOpen(true);
       }
@@ -231,47 +235,44 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   //   // initializeCosmosClient();
   // }, [networkDetails]);
 
-  const web3 = new Web3(window.ethereum);
-
-  const injectedContracts = contractDetails?.reduce((contracts: any, contract: any) => {
-    if (contract.abi && contract.abi.length > 0) {
-      // If ABI is directly provided, use it.
-      contracts[contract.name] = {
-        ...new web3.eth.Contract(contract.abi, contract.address),
-        abi: contract.abi
-      };
-    } else if (contract.template) {
-      const templateMap = {
-        'ERC20': ERC20_ABI,
-        'ERC721': ERC721_ABI,
-        'ERC1155': ERC1155_ABI,
-      };
-
-      const contractPath = templateMap[contract.template as keyof typeof templateMap];
-      if (contractPath) {
+  const getMCLib = () => {
+    const web3 = new Web3(window.ethereum);
+    const injectedContracts = contractDetails?.reduce((contracts: any, contract: any) => {
+      if (contract.abi && contract.abi.length > 0) {
+        // If ABI is directly provided, use it.
+        const address = contract.address || contract.addresses[chainId];
         contracts[contract.name] = {
-          ...new web3.eth.Contract(contract.abi, contract.address),
-          abi: contractPath
+          ...new web3.eth.Contract(contract.abi, address),
+          abi: contract.abi
         };
+      } else if (contract.template) {
+        const templateMap = {
+          'ERC20': ERC20_ABI,
+          'ERC721': ERC721_ABI,
+          'ERC1155': ERC1155_ABI,
+        };
+  
+        const contractPath = templateMap[contract.template as keyof typeof templateMap];
+        if (contractPath) {
+          contracts[contract.name] = {
+            ...new web3.eth.Contract(contract.abi, contract.address),
+            abi: contractPath
+          };
+        } else {
+          console.error(`No valid template found for contract: ${contract.template}`);
+        }
       } else {
-        console.error(`No valid template found for contract: ${contract.template}`);
+        console.error(`No ABI or template found for contract ${contract.name}`);
       }
-    } else {
-      console.error(`No ABI or template found for contract ${contract.name}`);
-    }
-    return contracts;
-  }, {}) || {};
-
-  const mcLib = {
-    web3: web3,
-    contracts: injectedContracts,
-    ///cosmosClient: cosmosClient,
-  };
-  console.log(mcLib);
-
-  useEffect(() => {
-    console.log(mcLib);
-  }, [networkDetails]);
+      return contracts;
+    }, {}) || {};
+    const mcLib = {
+      web3: web3,
+      contracts: injectedContracts,
+      ///cosmosClient: cosmosClient,
+    };
+    return mcLib;
+  }
 
   useEffect(() => {
     console.log(components);
@@ -290,9 +291,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const executeOnLoadCode = async (code: any) => {
     try {
       setLoading(true);
-      const config = mcLib.web3.config;
-      const ethers = mcLib.web3;
-      console.log(config);
+      const mcLib = getMCLib();
+      console.log(mcLib);
       const result = await eval(code);
       if (typeof result === "object") {
         setData((prevData) => ({ ...prevData, ...result }));
@@ -309,8 +309,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     try {
       setLoading(true);
       console.log("Executing onChange code:", code);
-      const config = mcLib.web3.config;
-      const ethers = mcLib.web3;
+      const mcLib = getMCLib();
+      console.log(mcLib);
       const result = await eval(code);
 
       // Update state with the merged result
@@ -345,9 +345,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const handleRun = async (code: string, data: { [key: string]: string }) => {
     try {
       setLoading(true);
-      const config = mcLib.web3.config;
-      const ethers = mcLib.web3;
-      console.log(config);
+      const mcLib = getMCLib();
+      console.log(mcLib);
       const result = await eval(code);
 
       // Update state with the merged result
@@ -364,6 +363,15 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       setLoading(false);
     }
   };
+
+  const shouldShow = (component: any, data: any) => {
+    if (component.config?.showEmpty) {
+       return component.config?.showEmpty;
+    } else if (['text', 'json', 'number', 'table', 'graph', "link", "description"].includes(component.type) && data[component.id] === undefined || data[component.id] === null) {
+      return false;
+    }
+    return true;
+  }
 
   // console.log("data", data);
 
@@ -432,7 +440,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         </div>
 
         <ul className="whitespace-normal break-words lg:text-lg">
-          {components.map((component, index) => (
+          {components.map((component, index) => shouldShow(component, data) && (
             <li key={index} className="mb-4">
               {(component.placement === "input" ||
                 component.placement === "output") && (
@@ -520,13 +528,13 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                             <DescriptionComponent data={data[component.id]} />
                           </div>
                         );
-                        case "transactionLink":
+                        case "link":
                           // console.log("Component:", component);
                           // console.log("Component.config:", component.config.transactionConfig);
                           // console.log("Component.config:", component.config.transactionConfig.type);
                           const preparedData = {
-                            type: component.config.transactionConfig.type || "",
-                            value: component.config.transactionConfig.value || "", 
+                            type: component.config.transactionConfig.linkType || "",
+                            value: data[component.id] || component.config.transactionConfig.value || "", 
                             baseUrl: component.config.transactionConfig.baseUrl || "https://etherscan.io",
                           };
                           return (
