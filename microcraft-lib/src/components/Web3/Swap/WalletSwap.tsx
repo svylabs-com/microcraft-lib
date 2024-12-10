@@ -185,7 +185,6 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
           <input
             type="number"
             value={fromAmount}
-            onChange={handleFromAmountChange}
             className="block w-full mt-1 border rounded py-2 px-3"
             placeholder="Enter amount"
             max={maxAmount}
