@@ -151,13 +151,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
       return;
     }
 
-    // Prevent the user from entering an amount greater than the max balance
-    if (new BigNumber(inputAmount).isLessThanOrEqualTo(new BigNumber(maxAmount))) {
-      setFromAmount(inputAmount);
-    } else {
-      // Optionally notify the user
-      alert(`Amount exceeds your balance of ${maxAmount}`);
-    }
+    setFromAmount(inputAmount);
   };
 
   // console.log(tokens)
@@ -185,6 +179,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
           <input
             type="number"
             value={fromAmount}
+            onChange={handleFromAmountChange}
             className="block w-full mt-1 border rounded py-2 px-3"
             placeholder="Enter amount"
             max={maxAmount}
