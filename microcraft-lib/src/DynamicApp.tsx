@@ -16,6 +16,7 @@ import Alert from "./components/Renderer/Alert";
 import { ERC20_ABI } from './components/ABI/ERC20_ABI';
 import { ERC721_ABI } from './components/ABI/ERC721_ABI';
 import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
+import 'ses';
 
 interface Props {
   components: any[];
@@ -39,6 +40,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [connectedAddressStatus, setConnectedAddressStatus] = useState<string>('');
   //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
+
+  //lockdown();
 
   useEffect(() => {
     // Update networks details if available
@@ -254,23 +257,29 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   useEffect(() => {
     console.log(components);
     console.log("Executing on load code...");
+    const mcLib = getMCLib();
+    const compartment = new Compartment({
+      console,
+      mcLib,
+      Math,
+      data
+    });
     components.forEach((component) => {
       if (component.events) {
         component.events.forEach((event: any) => {
           if (event.type === "onLoad" && event.code) {
-            executeOnLoadCode(event.code);
+            executeOnLoadCode(event.code, compartment);
           }
         });
       }
     });
   }, [components, context]);
 
-  const executeOnLoadCode = async (code: any) => {
+  const executeOnLoadCode = async (code: any, compartment: Compartment) => {
     try {
       setLoading(true);
-      const mcLib = getMCLib();
-      console.log(mcLib);
-      const result = await eval(code);
+      const result = await compartment.evaluate(code);
+      console.log("Onload Result: ", result);
       if (typeof result === "object") {
         setData((prevData) => ({ ...prevData, ...result }));
         debug((prevOutputCode: any) => ({ ...prevOutputCode, ...result }));
@@ -281,6 +290,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       setLoading(false);
     }
   };
+  
 
   const executeOnChangeCode = async (code: any, data: any) => {
     try {
@@ -288,7 +298,13 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       console.log("Executing onChange code:", code);
       const mcLib = getMCLib();
       console.log(mcLib);
-      const result = await eval(code);
+      const compartment = new Compartment({
+        console,
+        mcLib,
+        Math,
+        data,
+      });
+      const result = await compartment.evaluate(code);
 
       // Update state with the merged result
       setData(prevData => {
@@ -323,8 +339,13 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     try {
       setLoading(true);
       const mcLib = getMCLib();
-      console.log(mcLib);
-      const result = await eval(code);
+      const compartment = new Compartment({
+        console,
+        mcLib,
+        Math,
+        data,
+      });
+      const result = await compartment.evaluate(code);
 
       // Update state with the merged result
       setData(prevData => {
