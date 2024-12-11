@@ -90,7 +90,11 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
   }, []);
 
   useEffect(() => {
-    fetchUserAddressAndBalance(); // Fetch once on component mount
+    const currentTrade = {
+      from: fromTokens.filter((token: any) => token.chainId === context.chainId)[0],
+       to: toTokens.filter((token: any) => token.chainId === context.chainId)[0]
+    }
+    setCurrentTrade(currentTrade);
   }, [context]);
 
   useEffect(() => {

@@ -36,6 +36,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   const [networkName, setNetworkName] = useState('');
   const [chainId, setChainId] = useState('');
   const [networkStatus, setNetworkStatus] = useState<string>('');
+  const [connectedAddressStatus, setConnectedAddressStatus] = useState<string>('');
   //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
 
@@ -89,7 +90,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       return chainId;
     };
 
-    const selectedNetworkConfig = supportedNetworks.find((network: any) => network.type === selectedNetwork);
+    const selectedNetworkConfig = supportedNetworks.find((network: any) => network.name === selectedNetwork);
 
     if (!selectedNetworkConfig) {
       setNetworkStatus('No network selected.');
@@ -97,37 +98,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       return;
     }
 
-    const { chainId, rpcUrl, exploreUrl } = selectedNetworkConfig.config;
-
-    // Define a mapping for native currency based on network type
-    const nativeCurrencyMapping = {
-      ethereum: {
-        symbol: 'ETH',
-        decimals: 18,
-      },
-      polygon: {
-        symbol: 'MATIC',
-        decimals: 18,
-      },
-      'binance-smart-chain': {
-        symbol: 'BNB',
-        decimals: 18,
-      },
-      'citrea-bitcoin': {
-        symbol: 'BTC',
-        decimals: 18,
-      },
-      'citrus-bitcoin': {
-        symbol: 'CBTC',
-        decimals: 8,
-      },
-    };
-
-    // Retrieve the native currency based on the selected network type
-    const nativeCurrency = nativeCurrencyMapping[selectedNetworkConfig?.type as keyof typeof nativeCurrencyMapping] || {
-      symbol: 'ETH', // Default to ETH if not found
-      decimals: 18,
-    };
+    const { chainId, rpcUrl, exploreUrl, symbol, decimals } = selectedNetworkConfig.config;
 
     try {
       // Attempt to switch to the selected network
@@ -137,12 +108,15 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         params: [{ chainId: formatChainId(chainId) }],
       });
       console.log("Switched network successfully.");
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      const currentAddress = accounts[0];
 
       // If successful, update the state
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+      setConnectedAddressStatus(`Connected address: ${currentAddress}`);
       setIsConnected(true);
       setChainId(chainId + "");
-      setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId });
+      setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
       toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -160,29 +134,37 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
               chainName: selectedNetworkConfig.type,
               rpcUrls: [rpcUrl],
               blockExplorerUrls: [exploreUrl],
-              nativeCurrency: nativeCurrency,
+              nativeCurrency: {
+                symbol: symbol,
+                decimals: decimals,
+              },
             }],
           });
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          const currentAddress = accounts[0];
 
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+          setConnectedAddressStatus(`Connected address: ${currentAddress}`);
           setIsConnected(true);
-          setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId });
+          setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
           setChainId(chainId + "");
           setAlertOpen(false);
         } catch (addError: any) {
           console.error('Error adding network:', addError);
           setNetworkStatus(`Failed to add network: ${addError.message}`);
+          setConnectedAddressStatus('');
           setIsConnected(false);
           setChainId("");
-          setContext({ ...context, connected: false, network: null, chainId: 0 });
+          setContext({ ...context, connected: false, network: null, chainId: 0, connectedAddress: "" });
           setAlertOpen(true);
         }
       } else {
         // Handle other errors
         setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
+        setConnectedAddressStatus('');
         setIsConnected(false);
         setChainId("");
-        setContext({ ...context, connected: false, network: null, chainId: 0 });
+        setContext({ ...context, connected: false, network: null, chainId: 0, connectedAddress: "" });
         setAlertOpen(true);
       }
     }
@@ -269,6 +251,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     const mcLib = {
       web3: web3,
       contracts: injectedContracts,
+      context: context,
       ///cosmosClient: cosmosClient,
     };
     return mcLib;
@@ -381,6 +364,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
             {isConnected ? (
+              <div>
               <span className="flex items-center text-green-600 dark:text-green-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -398,6 +382,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                 </svg>
                 Connected to {selectedNetwork}
               </span>
+              <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
+              </div>
             ) : (
               <span className="flex items-center text-red-600 dark:text-red-500">
                 <svg
@@ -429,8 +415,8 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
             </option>
             {networkDetails && networkDetails.length > 0 ? (
               networkDetails.map((network: any) => (
-                <option key={network.type} value={network.type} className="text-gray-800">
-                  {network.type}
+                <option key={network.name} value={network.name} className="text-gray-800">
+                  {network.name}
                 </option>
               ))
             ) : (

@@ -24,6 +24,7 @@ const TokensDropdown: React.FC<TokensDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTokens, setFilteredTokens] = useState<Token[] | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -50,11 +51,16 @@ const TokensDropdown: React.FC<TokensDropdownProps> = ({
     setSearchQuery("");
   };
 
-  let filteredTokens = tokens?.filter((token) =>
-    token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    let filteredTokens = tokens?.filter((token) =>
+      token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  
+    filteredTokens = filteredTokens?.filter((token) => (token.chainId === context.chainId));
+    setFilteredTokens(filteredTokens);
+  }, [context]);
 
-  filteredTokens = filteredTokens?.filter((token) => (token.chainId === context.chainId));
+  
 
   return (
     <div ref={modalRef} className="relative">
