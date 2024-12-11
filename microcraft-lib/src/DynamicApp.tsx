@@ -223,10 +223,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       if (contract.abi && contract.abi.length > 0) {
         // If ABI is directly provided, use it.
         const address = contract.address || contract.addresses[chainId];
-        contracts[contract.name] = {
-          ...new web3.eth.Contract(contract.abi, address),
-          abi: contract.abi
-        };
+        contracts[contract.name] = new web3.eth.Contract(contract.abi, address);
       } else if (contract.template) {
         const templateMap = {
           'ERC20': ERC20_ABI,
@@ -236,10 +233,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   
         const contractPath = templateMap[contract.template as keyof typeof templateMap];
         if (contractPath) {
-          contracts[contract.name] = {
-            ...new web3.eth.Contract(contract.abi, contract.address),
-            abi: contractPath
-          };
+          contracts[contract.name] = new web3.eth.Contract(contract.abi, contract.address);
         } else {
           console.error(`No valid template found for contract: ${contract.template}`);
         }
