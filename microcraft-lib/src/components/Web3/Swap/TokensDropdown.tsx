@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 
 interface Token {
+  chainId: string | number;
   address: string;
   symbol: string;
   logoURI: string;
 }
 
 interface TokensDropdownProps {
+  context: any;
   tokens: Token[];
   selectedToken: Token | null;
   onSelect: (token: Token) => void;
@@ -14,6 +16,7 @@ interface TokensDropdownProps {
 }
 
 const TokensDropdown: React.FC<TokensDropdownProps> = ({
+  context,
   tokens,
   selectedToken,
   onSelect,
@@ -47,9 +50,11 @@ const TokensDropdown: React.FC<TokensDropdownProps> = ({
     setSearchQuery("");
   };
 
-  const filteredTokens = tokens?.filter((token) =>
+  let filteredTokens = tokens?.filter((token) =>
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  filteredTokens = filteredTokens?.filter((token) => (token.chainId === context.chainId));
 
   return (
     <div ref={modalRef} className="relative">

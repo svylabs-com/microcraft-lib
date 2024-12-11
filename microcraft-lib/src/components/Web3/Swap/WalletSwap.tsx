@@ -168,6 +168,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
         <div className="mb-4 w-full md:w-1/2">
           <label className="block ">{configurations?.fromTokenLabel}</label>
           <TokensDropdown
+            context={context}
             tokens={fromTokens}
             selectedToken={currentTrade.from}
             onSelect={(token) => selectToken("from", token)}
@@ -196,6 +197,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
         <div className="mb-4 w-full md:w-1/2">
           <label className="block ">{configurations?.toTokenLabel}</label>
           <TokensDropdown
+            context={context}
             tokens={toTokens}
             selectedToken={currentTrade.to}
             onSelect={(token) => selectToken("to", token)}

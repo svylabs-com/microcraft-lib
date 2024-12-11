@@ -67,7 +67,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       // If the user selects the default option, reset the connection
       setSelectedNetwork(null);
       setIsConnected(false);
-      setContext({ ...context, connected: false, network: null });
+      setContext({ ...context, connected: false, network: null, chainId: 0 });
       setNetworkStatus('');
     } else {
       // Set the selected network and mark as connected
@@ -142,7 +142,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
       setIsConnected(true);
       setChainId(chainId + "");
-      setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
+      setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId });
       toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -166,7 +166,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
 
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setIsConnected(true);
-          setContext({ ...context, connected: true, network: selectedNetworkConfig.type });
+          setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId });
           setChainId(chainId + "");
           setAlertOpen(false);
         } catch (addError: any) {
@@ -174,7 +174,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
           setNetworkStatus(`Failed to add network: ${addError.message}`);
           setIsConnected(false);
           setChainId("");
-          setContext({ ...context, connected: false, network: null });
+          setContext({ ...context, connected: false, network: null, chainId: 0 });
           setAlertOpen(true);
         }
       } else {
@@ -182,7 +182,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
         setNetworkStatus(`This app needs to connect to ${chainId}. Please configure it manually in your wallet.`);
         setIsConnected(false);
         setChainId("");
-        setContext({ ...context, connected: false, network: null });
+        setContext({ ...context, connected: false, network: null, chainId: 0 });
         setAlertOpen(true);
       }
     }
