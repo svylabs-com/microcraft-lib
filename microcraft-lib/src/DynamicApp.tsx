@@ -275,6 +275,10 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
     });
   }, [components, context]);
 
+  useEffect(() => {
+
+  }, [data]);
+
   const executeOnLoadCode = async (code: any, compartment: Compartment) => {
     try {
       setLoading(true);
@@ -638,7 +642,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                         handleInputChange(component.id, swapData);
                       });
                     }}
-                    data={data}
+                    data={data[component.id]}
                     context={context}
                   />
                 </div>

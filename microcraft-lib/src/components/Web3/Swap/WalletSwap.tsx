@@ -16,7 +16,7 @@ interface Props {
 }
 
 const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) => {
-  console.log("Swap configurations:- ", configurations, context);
+  console.log("Swap configurations:- ", configurations, context, data);
 
   const fromTokens = configurations.tokens.filter((token: any) =>
     token.listType === "from" || token.listType === "both"
@@ -33,15 +33,16 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
     from: defaultFromToken,
     to: defaultToToken
   });
-  const [fromAmount, setFromAmount] = useState("");
-  // const [toAmount, setToAmount] = useState(data?.toAmount || "");
-  const [toAmount, setToAmount] = useState("");
-  const [maxBorrowAmount, setMaxBorrowAmount] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
+  const [fromAmount, setFromAmount] = useState(data?.fromAmount || "");
+  const [toAmount, setToAmount] = useState(data?.toAmount || "");
+  //const [toAmount, setToAmount] = useState("");
+  const [maxToAmount, setMaxToAmount] = useState(data?.maxToAmount || "0");
+  const [maxFromAmount, setMaxFromAmount] = useState(data?.maxFromAmount || "0");
+  console.log("maxFromAmount", maxFromAmount, "maxToAmount", maxToAmount, "fromAmount", fromAmount, "toAmount", toAmount);
 
-  // Initialize Web3 instance
   const web3 = new Web3(Web3.givenProvider);
 
+  /*
   // Fetch user address and balance
   const fetchUserAddressAndBalance = async () => {  
     try {
@@ -78,17 +79,19 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
       }
 
       setMaxAmount(balance.toString());
-      console.log("maxAmount", maxAmount);
+      console.log("maxAmount", maxFromAmount);
     } catch (error) {
       console.error("Error fetching user address or balance:", error);
       setMaxAmount("null");
     }
   };
+  */
 
+  /*
   useEffect(() => {
     fetchUserAddressAndBalance(); // Fetch once on component mount
   }, []);
-
+  */
   useEffect(() => {
     const currentTrade = {
       from: fromTokens.filter((token: any) => token.chainId === context.chainId)[0],
@@ -97,27 +100,29 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
     setCurrentTrade(currentTrade);
   }, [context]);
 
+  /*
   useEffect(() => {
     fetchUserAddressAndBalance(); // Fetch again when currentTrade.from changes
   }, [currentTrade.from]);
+  */
+
+  const format = (value: string, token: any) => {
+    if (!value || !token) return "N/A";
+     return parseFloat(web3.utils.fromWei((value.toString()), token.decimals)).toFixed(3);
+  }
 
   useEffect(() => {
     // Update toAmount based on data prop changes
     // if (data?.toAmount) {
     //   setToAmount(data.toAmount);
     // }
-
-    const estimatedAmountKey = configurations?.estimatedAmountLabel;
-    const borrowAmountKey = configurations?.maxEstimationBorrowLabel;
-
-    // Update `toAmount` based on `estimatedAmountLabel` and `data`
-    if (estimatedAmountKey && data && data[estimatedAmountKey]) {
-      setToAmount(data[estimatedAmountKey]);
+    // Update `maxBorrowAmount` dynamically based on `maxEstimationBorrowLabel` and `data`
+    if (data && data.maxToAmount) {
+      setMaxToAmount(data.maxToAmount);
     }
 
-    // Update `maxBorrowAmount` dynamically based on `maxEstimationBorrowLabel` and `data`
-    if (borrowAmountKey && data && data[borrowAmountKey]) {
-      setMaxBorrowAmount(data[borrowAmountKey]);
+    if (data && data.maxFromAmount) {
+      setMaxFromAmount(data.maxFromAmount);
     }
   }, [configurations, data]);
 
@@ -133,14 +138,14 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
 
     // Access swapConfig values using user-defined labels as IDs
     const swapData = {
-      [configurations?.fromTokenLabel]: currentTrade.from,
-      [configurations?.toTokenLabel]: currentTrade.to,
-      [configurations?.amountLabel]: fromAmount,
-      [configurations?.estimatedAmountLabel]: toAmount,
-      [configurations?.maxEstimationBorrowLabel]: maxBorrowAmount,
+      ...data,
+      fromAmount: fromAmount,
+      toAmount: toAmount,
+      fromToken: currentTrade.from,
+      toToken: currentTrade.to,
     };
     onSwapChange(swapData);
-  }, [currentTrade.from, currentTrade.to, fromAmount, toAmount]);
+  }, [currentTrade.from, currentTrade.to, fromAmount]);
 
   // const handleFromAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setFromAmount(e.target.value);
@@ -180,17 +185,16 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
           />
         </div>
         <div className="mb-4 w-full md:w-1/2">
-          <label className="block ">{configurations?.amountLabel}</label>
+          <label className="block ">{configurations?.fromAmountLabel}</label>
           <input
             type="number"
             value={fromAmount}
             onChange={handleFromAmountChange}
             className="block w-full mt-1 border rounded py-2 px-3"
             placeholder="Enter amount"
-            max={maxAmount}
           />
           <span className="text-sm mt-1 block">
-            Max amount: {maxAmount}
+          {configurations?.maxFromAmountLabel}: {format(maxFromAmount, currentTrade.from) || "N/A"}
           </span>
         </div>
       </div>
@@ -209,7 +213,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
           />
         </div>
         <div className="mb-4 w-full md:w-1/2">
-          <label className="block ">{configurations?.estimatedAmountLabel}</label>
+          <label className="block ">{configurations?.toAmountLabel}</label>
           <input
             type="text"
             value={toAmount}
@@ -220,7 +224,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
             placeholder="Estimated amount"
           />
           <span className="text-sm mt-1 block">
-            {configurations?.maxEstimationBorrowLabel}: {maxBorrowAmount || "N/A"}
+            {configurations?.maxToAmountLabel}: {format(maxToAmount, currentTrade.to) || "N/A"}
           </span>
         </div>
       </div>
