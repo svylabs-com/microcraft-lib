@@ -2,11 +2,16 @@ import React from 'react';
 
 interface DescriptionComponentProps {
   data: any;
+  template: any;
 }
 
-const DescriptionComponent: React.FC<DescriptionComponentProps> = ({ data }) => {
+const DescriptionComponent: React.FC<DescriptionComponentProps> = ({ data, template }) => {
   // console.log("data", data);
-  return <p>{data ? data.toString() : "Data Not Available"}</p>;
+  let toDisplay = data? data.toString() : "Data Not Available";
+  if (template !== "" && data != null && typeof data === "object") {
+    toDisplay = template.replace(/\${(.*?)}/g, (x: any, g: any) => data[g]);
+  }
+  return <p>{toDisplay}</p>;
 };
 
 export default DescriptionComponent;

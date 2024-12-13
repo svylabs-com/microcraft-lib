@@ -530,7 +530,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
                                 : {}),
                             }}
                           >
-                            <DescriptionComponent data={data[component.id]} />
+                            <DescriptionComponent data={data[component.id] || component.config.default} template={component.config.template || ""} />
                           </div>
                         );
                         case "link":
