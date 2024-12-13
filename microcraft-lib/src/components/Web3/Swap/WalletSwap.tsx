@@ -145,7 +145,7 @@ const Swap: React.FC<Props> = ({ configurations, onSwapChange, data, context }) 
       toToken: currentTrade.to,
     };
     onSwapChange(swapData);
-  }, [currentTrade.from, currentTrade.to, fromAmount]);
+  }, [currentTrade.from, currentTrade.to, fromAmount, toAmount]);
 
   // const handleFromAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setFromAmount(e.target.value);
