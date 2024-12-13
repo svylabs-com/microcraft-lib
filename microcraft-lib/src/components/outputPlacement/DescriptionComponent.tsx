@@ -8,7 +8,7 @@ interface DescriptionComponentProps {
 const DescriptionComponent: React.FC<DescriptionComponentProps> = ({ data, template }) => {
   // console.log("data", data);
   let toDisplay = data? data.toString() : "Data Not Available";
-  if (template !== "" && data != null && typeof data === "object") {
+  if (template && data && typeof data === "object") {
     toDisplay = template.replace(/\${(.*?)}/g, (x: any, g: any) => data[g]);
   }
   return <p>{toDisplay}</p>;
