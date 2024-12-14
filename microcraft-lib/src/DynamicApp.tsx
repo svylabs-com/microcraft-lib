@@ -19,6 +19,7 @@ import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
 import 'ses';
 
 interface Props {
+  runId: string;
   components: any[];
   networks?: any;
   contracts?: any;
@@ -26,7 +27,7 @@ interface Props {
   debug: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const DynamicApp: React.FC<Props> = ({ components, updateData, debug, networks, contracts }) => {
+const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, networks, contracts }) => {
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
@@ -40,6 +41,7 @@ const DynamicApp: React.FC<Props> = ({ components, updateData, debug, networks, 
   const [connectedAddressStatus, setConnectedAddressStatus] = useState<string>('');
   //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
+  const [currentRunId, setCurrentRunId] = useState<string>('');
 
   //lockdown();
 
@@ -52,6 +54,23 @@ const DynamicApp: React.FC<Props> = ({ components, updateData, debug, networks, 
     // Update contract details if available
     if (contracts) {
       setContractDetails(contracts);
+    }
+    setData({});
+    if (updateData) {
+      updateData({});
+    }
+    if (runId != currentRunId) {
+      setConnectedAddressStatus('');
+      setIsConnected(false);
+      setNetworkName('');
+      setNetworkStatus('');
+      setChainId('');
+      setData({});
+      if (updateData) {
+        updateData({});
+      }
+      setContext({});
+      setCurrentRunId(runId);
     }
   }, [networks, contracts, context]);
 
