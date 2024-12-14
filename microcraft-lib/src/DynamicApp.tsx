@@ -388,7 +388,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const shouldShow = (component: any, data: any) => {
     if (component.config?.showEmpty) {
        return component.config?.showEmpty;
-    } else if (['text', 'json', 'number', 'table', 'graph', "link", "description", "button"].includes(component.type) && (data[component.id] === undefined || data[component.id] === null || data[component.id] === false)) {
+    } else if (['json', 'number', 'table', 'graph', "link", "description", "button"].includes(component.type) && (data[component.id] === undefined || data[component.id] === null || data[component.id] === false)) {
       return false;
     }
     return true;
