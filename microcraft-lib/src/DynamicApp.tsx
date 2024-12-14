@@ -22,16 +22,16 @@ interface Props {
   components: any[];
   networks?: any;
   contracts?: any;
-  data: { [key: string]: any };
-  setData: React.Dispatch<React.SetStateAction<{ [key: string]: any }>>;
+  updateData?: React.Dispatch<React.SetStateAction<{ [key: string]: any }>>;
   debug: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, networks, contracts }) => {
+const DynamicApp: React.FC<Props> = ({ components, updateData, debug, networks, contracts }) => {
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+  const [data, setData] = useState<{[key: string]: any}>({});
   const [isConnected, setIsConnected] = useState(false);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [networkName, setNetworkName] = useState('');
@@ -276,7 +276,7 @@ const DynamicApp: React.FC<Props> = ({ components, data, setData, debug, network
   }, [components, context]);
 
   useEffect(() => {
-
+    updateData && updateData(data);
   }, [data]);
 
   const executeOnLoadCode = async (code: any, compartment: Compartment) => {
