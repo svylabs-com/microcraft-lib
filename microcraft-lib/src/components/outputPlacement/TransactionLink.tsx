@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface TransactionLinkProps {
   data: {
@@ -10,6 +10,8 @@ interface TransactionLinkProps {
 
 const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
 
+  const [isConfirmed, setIsConfirmed] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { type, value, baseUrl } = data;
 
   // Trim the data 
@@ -32,6 +34,44 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
     linkUrl = trimmedValue; // Use the provided value as the link
   }
 
+  // Function to check the transaction confirmation status
+  const checkTransactionStatus = async () => {
+    try {
+      const response = await fetch(`${trimmedBaseUrl}/api/txstatus/${trimmedValue}`);
+      const data = await response.json();
+
+      if (data?.status === 'confirmed') {
+        setIsConfirmed(true); // Transaction confirmed
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error checking transaction status:', error);
+      setIsConfirmed(false); // Handle error if unable to fetch status
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isConfirmed !== true) {
+      const interval = setInterval(() => {
+        checkTransactionStatus(); // Check status every 5 seconds
+      }, 5000);
+
+      // Clean up the interval when the transaction is confirmed or when the component is unmounted
+      return () => clearInterval(interval);
+    }
+  }, [isConfirmed]);
+
+  // Display messages based on transaction status
+  let statusMessage = '';
+  if (isLoading) {
+    statusMessage = 'Checking confirmation...';
+  } else if (isConfirmed) {
+    statusMessage = 'Transaction Confirmed!';
+  } else if (isConfirmed === false) {
+    statusMessage = 'Transaction Failed or Not Found';
+  }
+
   return (
     <div className="flex items-center space-x-2 p-2 bg-gray-100 rounded-md shadow-md max-w-md">
       {displayText ? (
@@ -48,6 +88,11 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </a>
+          {isLoading ? (
+            <div className="text-sm text-gray-500">Checking transaction...</div>
+          ) : (
+            <div className={`text-sm ${isConfirmed ? 'text-green-500' : 'text-red-500'}`}>{statusMessage}</div>
+          )}
         </>
       ) : (
         <span className="text-gray-500 cursor-not-allowed font-medium">Link Not Available</span>
