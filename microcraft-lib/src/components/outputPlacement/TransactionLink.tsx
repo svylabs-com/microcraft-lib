@@ -12,6 +12,7 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
 
   const [isConfirmed, setIsConfirmed] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { type, value, baseUrl } = data;
 
   // Trim the data 
@@ -38,16 +39,24 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
   const checkTransactionStatus = async () => {
     try {
       const response = await fetch(`${trimmedBaseUrl}/api/txstatus/${trimmedValue}`);
+      
+      if (!response.ok) {
+        throw new Error('Error fetching transaction status');
+      }
+      
       const data = await response.json();
 
       if (data?.status === 'confirmed') {
         setIsConfirmed(true); // Transaction confirmed
         setIsLoading(false);
+      } else {
+        throw new Error('Transaction not confirmed');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking transaction status:', error);
-      setIsConfirmed(false); // Handle error if unable to fetch status
       setIsLoading(false);
+      setIsConfirmed(false);
+      setErrorMessage(error.message || 'An error occurred while checking the transaction');
     }
   };
 
@@ -68,8 +77,8 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
     statusMessage = 'Checking confirmation...';
   } else if (isConfirmed) {
     statusMessage = 'Transaction Confirmed!';
-  } else if (isConfirmed === false) {
-    statusMessage = 'Transaction Failed or Not Found';
+  } else if (errorMessage) {
+    statusMessage = errorMessage; // Display specific error message
   }
 
   return (
