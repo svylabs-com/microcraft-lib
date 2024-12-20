@@ -25,9 +25,10 @@ interface Props {
   contracts?: any;
   updateData?: React.Dispatch<React.SetStateAction<{ [key: string]: any }>>;
   debug: React.Dispatch<React.SetStateAction<any>>;
+  whitelistedJSElements?: any[]
 }
 
-const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, networks, contracts }) => {
+const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, networks, contracts, whitelistedJSElements  = []}) => {
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
@@ -281,7 +282,8 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       console,
       mcLib,
       Math,
-      data
+      data,
+      ...whitelistedJSElements
     });
     components.forEach((component) => {
       if (component.events) {
@@ -326,6 +328,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
         mcLib,
         Math,
         data,
+        ...whitelistedJSElements
       });
       const result = await compartment.evaluate(code);
 
@@ -367,6 +370,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
         mcLib,
         Math,
         data,
+        ...whitelistedJSElements
       });
       const result = await compartment.evaluate(code);
 
@@ -399,6 +403,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   return (
     <>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
+        { networkDetails?.length > 0 && (
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
             {isConnected ? (
@@ -462,6 +467,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             )}
           </select>
         </div>
+        )}
 
         <ul className="whitespace-normal break-words lg:text-lg">
           {components.map((component, index) => shouldShow(component, data) && (
@@ -552,14 +558,15 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                             <DescriptionComponent data={data[component.id] || component.config?.default || null} template={component.config?.template || null} />
                           </div>
                         );
-                      case "entityLink":
+                      case "link":
                         // console.log("Component:", component);
                         // console.log("Component.config:", component.config.transactionConfig);
                         // console.log("Component.config:", component.config.transactionConfig.type);
+                        const baseURL = component.config.transactionConfig.baseUrl  || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
                         const preparedData = {
                           type: component.config.transactionConfig.type || "",
                           value: data[component.id] || component.config.transactionConfig.value || "",
-                          baseUrl: component.config.transactionConfig.baseUrl || "https://etherscan.io",
+                          baseUrl: baseURL,
                         };
                         return (
                           <div

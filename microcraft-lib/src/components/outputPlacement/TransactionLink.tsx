@@ -100,7 +100,7 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
             className="text-blue-500 hover:text-blue-700 underline font-semibold transition duration-150 ease-in-out flex items-center"
           >
             {/* <span>{linkUrl}</span> */}
-            <span>{linkUrl.length > 8 ? `${linkUrl.slice(0, 8)}...` : linkUrl}</span>
+            <span>{displayText.length > 32 ? `${displayText.slice(0, 32)}...` : displayText}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
