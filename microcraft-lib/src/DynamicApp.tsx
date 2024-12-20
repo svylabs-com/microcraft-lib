@@ -32,7 +32,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
-  const [data, setData] = useState<{[key: string]: any}>({});
+  const [data, setData] = useState<{ [key: string]: any }>({});
   const [isConnected, setIsConnected] = useState(false);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [networkName, setNetworkName] = useState('');
@@ -252,7 +252,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           'ERC721': ERC721_ABI,
           'ERC1155': ERC1155_ABI,
         };
-  
+
         const contractPath = templateMap[contract.template as keyof typeof templateMap];
         if (contractPath) {
           contracts[contract.name] = new web3.eth.Contract(contract.abi, contract.address);
@@ -313,7 +313,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setLoading(false);
     }
   };
-  
+
 
   const executeOnChangeCode = async (code: any, data: any) => {
     try {
@@ -387,7 +387,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
 
   const shouldShow = (component: any, data: any) => {
     if (component.config?.showEmpty) {
-       return component.config?.showEmpty;
+      return component.config?.showEmpty;
     } else if (['json', 'number', 'table', 'graph', "link", "description", "button"].includes(component.type) && (data[component.id] === undefined || data[component.id] === null || data[component.id] === false)) {
       return false;
     }
@@ -403,24 +403,24 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
             {isConnected ? (
               <div>
-              <span className="flex items-center text-green-600 dark:text-green-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-5 h-5 mr-2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Connected to {selectedNetwork}
-              </span>
-              <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
+                <span className="flex items-center text-green-600 dark:text-green-500">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-5 h-5 mr-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Connected to {selectedNetwork}
+                </span>
+                <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
               </div>
             ) : (
               <span className="flex items-center text-red-600 dark:text-red-500">
@@ -552,27 +552,27 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                             <DescriptionComponent data={data[component.id] || component.config?.default || null} template={component.config?.template || null} />
                           </div>
                         );
-                        case "link":
-                          // console.log("Component:", component);
-                          // console.log("Component.config:", component.config.transactionConfig);
-                          // console.log("Component.config:", component.config.transactionConfig.type);
-                          const preparedData = {
-                            type: component.config.transactionConfig.linkType || "",
-                            value: data[component.id] || component.config.transactionConfig.value || "", 
-                            baseUrl: component.config.transactionConfig.baseUrl || "https://etherscan.io",
-                          };
-                          return (
-                            <div
-                              className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                              style={{
-                                ...(component.config && typeof component.config.styles === 'object'
-                                  ? component.config.styles
-                                  : {}),
-                              }}
-                            >
-                              <TransactionLink data={preparedData} />
-                            </div>
-                          );
+                      case "entityLink":
+                        // console.log("Component:", component);
+                        // console.log("Component.config:", component.config.transactionConfig);
+                        // console.log("Component.config:", component.config.transactionConfig.type);
+                        const preparedData = {
+                          type: component.config.transactionConfig.type || "",
+                          value: data[component.id] || component.config.transactionConfig.value || "",
+                          baseUrl: component.config.transactionConfig.baseUrl || "https://etherscan.io",
+                        };
+                        return (
+                          <div
+                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                            style={{
+                              ...(component.config && typeof component.config.styles === 'object'
+                                ? component.config.styles
+                                : {}),
+                            }}
+                          >
+                            <TransactionLink data={preparedData} />
+                          </div>
+                        );
                       default:
                         return null;
                     }

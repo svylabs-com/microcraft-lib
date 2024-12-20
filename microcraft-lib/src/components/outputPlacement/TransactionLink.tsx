@@ -69,8 +69,8 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
   useEffect(() => {
     if (isConfirmed === null) {
       const interval = setInterval(() => {
-        checkTransactionStatus(); // Check status every 5 seconds
-      }, 5000);
+        checkTransactionStatus(); // Check status every 12 seconds
+      }, 12000);
 
       // Clean up the interval when the transaction is confirmed or the component is unmounted
       return () => clearInterval(interval);
@@ -80,13 +80,13 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
   // Display messages based on transaction status
   let statusMessage = '';
   if (isLoading) {
-    statusMessage = 'Checking confirmation...';
+    statusMessage = 'Pending...';
   } else if (isConfirmed) {
-    statusMessage = 'Transaction Confirmed!';
+    statusMessage = 'Confirmed!';
   } else if (errorMessage) {
     statusMessage = errorMessage; // Display specific error message
   } else {
-    statusMessage = 'Transaction not yet confirmed.';
+    statusMessage = 'Not yet confirmed.';
   }
 
   return (
@@ -99,12 +99,25 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
             rel="noopener noreferrer"
             className="text-blue-500 hover:text-blue-700 underline font-semibold transition duration-150 ease-in-out flex items-center"
           >
-            <span>{linkUrl}</span>
+            {/* <span>{linkUrl}</span> */}
+            <span>{linkUrl.length > 8 ? `${linkUrl.slice(0, 8)}...` : linkUrl}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </a>
-          <div className={`text-sm ${isConfirmed ? 'text-green-500' : 'text-red-500'}`}>{statusMessage}</div>
+          {/* <div className={`text-sm ${isConfirmed ? 'text-green-500' : 'text-red-500'}`}>{statusMessage}</div> */}
+          <div
+            className={`text-sm font-medium p-2 rounded-md mt-2 flex items-center justify-center transition-all duration-300 ${isConfirmed
+              ? 'bg-green-100 text-green-600'
+              : isConfirmed === false
+                ? 'bg-red-100 text-red-600'
+                : errorMessage
+                  ? 'bg-yellow-100 text-yellow-600'
+                  : 'bg-gray-100 text-gray-600'
+              }`}
+          >
+            {statusMessage}
+          </div>
         </>
       ) : (
         <span className="text-gray-500 cursor-not-allowed font-medium">Link Not Available</span>
