@@ -25,10 +25,10 @@ interface Props {
   contracts?: any;
   updateData?: React.Dispatch<React.SetStateAction<{ [key: string]: any }>>;
   debug: React.Dispatch<React.SetStateAction<any>>;
-  whitelistedJSElements?: any[]
+  whitelistedJSElements?: Record<string, any>;
 }
 
-const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, networks, contracts, whitelistedJSElements  = []}) => {
+const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, networks, contracts, whitelistedJSElements }) => {
   const [loading, setLoading] = useState(false);
   const [networkDetails, setNetworkDetails] = useState<any>(null);
   const [contractDetails, setContractDetails] = useState<any[]>([]);
@@ -43,6 +43,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
   const [currentRunId, setCurrentRunId] = useState<string>('');
+  console.log("WhitelistedJSElements: ", whitelistedJSElements);
 
   //lockdown();
 
@@ -285,6 +286,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       data,
       ...whitelistedJSElements
     });
+    //console.log("Compartment: ", compartment.globalThis);
     components.forEach((component) => {
       if (component.events) {
         component.events.forEach((event: any) => {
