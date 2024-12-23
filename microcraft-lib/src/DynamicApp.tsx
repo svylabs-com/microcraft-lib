@@ -123,17 +123,33 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
     }
 
     const { chainId, rpcUrl, exploreUrl, symbol, decimals } = selectedNetworkConfig.config;
+    let currentAddress = '';
 
     try {
-      // Attempt to switch to the selected network
-      console.log("Attempting to switch network...");
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: formatChainId(chainId) }],
-      });
-      console.log("Switched network successfully.");
+
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      const currentAddress = accounts[0];
+      if (accounts.length > 0) {
+        // Already connected
+        currentAddress = accounts[0];
+      } else {
+        // Not connected
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        currentAddress = accounts[0];
+      }
+
+      const web3 = new Web3(window.ethereum);
+
+      const currentChainId = await web3.eth.getChainId();
+      if (currentChainId !== chainId) {
+        console.log('Switching to the required chain...');
+        // Attempt to switch to the selected network
+        console.log("Attempting to switch network...");
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: formatChainId(chainId) }],
+        });
+        console.log("Switched network successfully.");
+      }
 
       // If successful, update the state
       setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
@@ -164,9 +180,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               },
             }],
           });
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          const currentAddress = accounts[0];
-
+          
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setConnectedAddressStatus(`Connected address: ${currentAddress}`);
           setIsConnected(true);
