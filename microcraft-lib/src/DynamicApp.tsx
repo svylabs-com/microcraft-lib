@@ -605,9 +605,36 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               )}
 
               {component.placement === "input" &&
+                (component.type === "file") && (
+                  <input
+                    className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
+                    style={{
+                      ...(component.config && typeof component.config.styles === 'object'
+                        ? component.config.styles
+                        : {}),
+                    }}
+                    type={component.type}
+                    id={component.id}
+                    value={data[component.id] || ""}
+                    onChange={(e) => {
+                      components.forEach((elements) => {
+                        if (elements.events) {
+                          elements.events.forEach((event: any) => {
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
+                              handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                            }
+                          });
+                        }
+                        handleInputChange(component.id, e.target.value);
+                      });
+                    }}
+                  />
+                )}
+
+              {component.placement === "input" &&
                 (component.type === "text" ||
-                  component.type === "number" ||
-                  component.type === "file") && (
+                  component.type === "number") && (
                   <InputComponent
                     key={component.id}
                     component={component}
