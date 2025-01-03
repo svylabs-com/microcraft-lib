@@ -72,7 +72,6 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
                         {isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}
                     </button> */}
                     <div className="flex gap-4 self-center">
-            <p className="text-[#85909B] font-medium self-center">Required</p>
             <input
               type="checkbox"
               id="toggle"
