@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiCopy } from "react-icons/fi";
-import "./inputComponent.scss";
+import Switch from "react-switch";
 
 interface InputComponentProps {
     component: any;
@@ -14,8 +14,8 @@ interface InputComponentProps {
 const InputComponent: React.FC<InputComponentProps> = ({ component, data, config, handleInputChange, components }) => {
     const [isQrCodeVisible, setIsQrCodeVisible] = useState(false);
 
-    const handleToggleQrCode = () => {
-        setIsQrCodeVisible((prev) => !prev);
+    const handleToggleQrCode = (checked: boolean) => {
+        setIsQrCodeVisible(checked);
     };
 
     const handleCopy = () => {
@@ -65,29 +65,27 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
                 )}
             </div>
 
-            {/* Display QR Code section if enabled */}
+            {/* Display QR Code section if enabled with toggle */}
             {config.enableQrCode && (
-                <div className="mt-2">
-                    {/* <button onClick={handleToggleQrCode}>
-                        {isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}
-                    </button> */}
-                    <div className="flex gap-4 self-center">
-            <input
-              type="checkbox"
-              id="toggle"
-              className="check-box"
-            //   checked={isRequired}
-            onChange={handleToggleQrCode}
-            />
-            <label htmlFor="toggle" className="switch"></label>
-          </div>
+                <div className="mt-2 flex items-center space-x-2 justify-end">
+                    <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
+                    <Switch
+                        checked={isQrCodeVisible}
+                        onChange={handleToggleQrCode}
+                        offHandleColor="#d1d5db"
+                        onHandleColor="#4caf50"
+                        offColor="#e0e0e0"
+                        onColor="#81c784"
+                        height={20}
+                        width={40}
+                    />
+                </div>
+            )}
 
-
-                    {isQrCodeVisible && (
-                        <div className="mt-4">
-                            <QRCodeSVG value={data[component.id] || "No data available"} size={128} />
-                        </div>
-                    )}
+            {/* Display the QR Code if toggled on */}
+            {isQrCodeVisible && (
+                <div className="flex mt-4 justify-center">
+                    <QRCodeSVG value={data[component.id] || "No data available"} size={128} />
                 </div>
             )}
         </>
