@@ -13,6 +13,7 @@ interface InputComponentProps {
 
 const InputComponent: React.FC<InputComponentProps> = ({ component, data, config, handleInputChange, components }) => {
     const [isQrCodeVisible, setIsQrCodeVisible] = useState(false);
+    const [showCopyMessage, setShowCopyMessage] = useState(false);
 
     const handleToggleQrCode = (checked: boolean) => {
         setIsQrCodeVisible(checked);
@@ -20,48 +21,57 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
 
     const handleCopy = () => {
         navigator.clipboard.writeText(data[component.id] || "").then(() => {
-            alert("Copied to clipboard!");
+            setShowCopyMessage(true);
+            setTimeout(() => setShowCopyMessage(false), 2000); // Hide after 2 seconds
         });
     };
 
     return (
         <>
             <div className="relative w-full">
-            <input
+                <input
                     className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
                     style={{
-                      ...(component.config && typeof component.config.styles === 'object'
-                        ? component.config.styles
-                        : {}),
+                        ...(component.config && typeof component.config.styles === 'object'
+                            ? component.config.styles
+                            : {}),
                     }}
                     type={component.type}
                     id={component.id}
                     value={data[component.id] || ""}
                     onChange={(e) => {
-                      components.forEach((elements: any) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                        components.forEach((elements: any) => {
+                            if (elements.events) {
+                                elements.events.forEach((event: any) => {
+                                    if (event.type === "onChange") {
+                                        const eventCode = event.code;
+                                        handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                                    }
+                                });
                             }
-                          });
-                        }
-                        handleInputChange(component.id, e.target.value);
-                      });
+                            handleInputChange(component.id, e.target.value);
+                        });
                     }}
-                  />
+                />
 
                 {/* Display copy icon if enabled */}
                 {config.enableCopyIcon && (
-                    <FiCopy
-                        onClick={handleCopy}
-                        className="absolute right-1 cursor-pointer"
-                        aria-label="Copy to clipboard"
-                        size={20}
-                        color="gray"
-                        style={{top: "50%", transform: "translateY(-50%)"}}
-                    />
+                    <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center">
+                        <FiCopy
+                            onClick={handleCopy}
+                            title="Copy and Paste Anywhere"
+                            className="cursor-pointer"
+                            aria-label="Copy to clipboard"
+                            size={20}
+                            color="gray"
+                        />
+                        {showCopyMessage && (
+                            <span className="absolute top-full mt-5 text-xs text-blue-700 whitespace-nowrap">
+                                Copied to clipboard!
+                            </span>
+                        )}
+                    </div>
+
                 )}
             </div>
 
