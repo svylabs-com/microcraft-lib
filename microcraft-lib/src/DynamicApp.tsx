@@ -181,7 +181,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               },
             }],
           });
-          
+
           setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
           setConnectedAddressStatus(`Connected address: ${currentAddress}`);
           setIsConnected(true);
@@ -420,12 +420,32 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   return (
     <>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
-        { networkDetails?.length > 0 && (
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
-            {isConnected ? (
-              <div>
-                <span className="flex items-center text-green-600 dark:text-green-500">
+        {networkDetails?.length > 0 && (
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
+            <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
+              {isConnected ? (
+                <div>
+                  <span className="flex items-center text-green-600 dark:text-green-500">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5 mr-2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Connected to {selectedNetwork}
+                  </span>
+                  <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
+                </div>
+              ) : (
+                <span className="flex items-center text-red-600 dark:text-red-500">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -437,53 +457,33 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
+                      d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                  Connected to {selectedNetwork}
+                  Not connected
                 </span>
-                <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
-              </div>
-            ) : (
-              <span className="flex items-center text-red-600 dark:text-red-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-5 h-5 mr-2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                Not connected
-              </span>
-            )}
-          </h2>
-          <select
-            className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(e) => handleNetworkChange(e.target.value)}
-            value={selectedNetwork || ""}
-            title="Select Network"
-          >
-            <option value="" className="text-gray-400">
-              Select network
-            </option>
-            {networkDetails && networkDetails.length > 0 ? (
-              networkDetails.map((network: any, index: number) => (
-                <option key={network.name || index} value={network.name} className="text-gray-800">
-                  {network.name}
-                </option>
-              ))
-            ) : (
-              <option className="text-gray-400">No networks available</option>
-            )}
-          </select>
-        </div>
+              )}
+            </h2>
+            <select
+              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => handleNetworkChange(e.target.value)}
+              value={selectedNetwork || ""}
+              title="Select Network"
+            >
+              <option value="" className="text-gray-400">
+                Select network
+              </option>
+              {networkDetails && networkDetails.length > 0 ? (
+                networkDetails.map((network: any, index: number) => (
+                  <option key={network.name || index} value={network.name} className="text-gray-800">
+                    {network.name}
+                  </option>
+                ))
+              ) : (
+                <option className="text-gray-400">No networks available</option>
+              )}
+            </select>
+          </div>
         )}
 
         <ul className="whitespace-normal break-words lg:text-lg">
@@ -579,7 +579,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                         // console.log("Component:", component);
                         // console.log("Component.config:", component.config.transactionConfig);
                         // console.log("Component.config:", component.config.transactionConfig.type);
-                        const baseURL = component.config.transactionConfig.baseUrl  || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
+                        const baseURL = component.config.transactionConfig.baseUrl || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
                         const preparedData = {
                           type: component.config.transactionConfig.type || "",
                           value: data[component.id] || component.config.transactionConfig.value || "",
@@ -608,14 +608,14 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                 (component.type === "text" ||
                   component.type === "number" ||
                   component.type === "file") && (
-                    <InputComponent 
-                      key={component.id}
-                      component={component}
-                      data={data}
-                      config={component.config}
-                      handleInputChange={handleInputChange}
-                      components={components}
-                    />
+                  <InputComponent
+                    key={component.id}
+                    component={component}
+                    data={data}
+                    config={component.config}
+                    handleInputChange={handleInputChange}
+                    components={components}
+                  />
                 )}
               {component.placement === "input" &&
                 (component.type === "json") && (

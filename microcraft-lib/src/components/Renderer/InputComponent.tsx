@@ -6,7 +6,7 @@ interface InputComponentProps {
     component: any;
     data: any;
     config: any;
-    handleInputChange: (id: string, value: string) => void;
+    handleInputChange: (id: string, value: any, eventCode?: string, eventType?: string) => void;
     components: any;
 }
 
@@ -26,14 +26,30 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
     return (
         <>
             <div className="relative w-full">
-                <input
-                    className="w-full px-4 p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
-                    style={component.config && typeof component.config.styles === 'object' ? component.config.styles : {}}
+            <input
+                    className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
+                    style={{
+                      ...(component.config && typeof component.config.styles === 'object'
+                        ? component.config.styles
+                        : {}),
+                    }}
                     type={component.type}
                     id={component.id}
                     value={data[component.id] || ""}
-                    onChange={(e) => handleInputChange(component.id, e.target.value)}
-                />
+                    onChange={(e) => {
+                      components.forEach((elements: any) => {
+                        if (elements.events) {
+                          elements.events.forEach((event: any) => {
+                            if (event.type === "onChange") {
+                              const eventCode = event.code;
+                              handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                            }
+                          });
+                        }
+                        handleInputChange(component.id, e.target.value);
+                      });
+                    }}
+                  />
 
                 {/* Display copy icon if enabled */}
                 {config.enableCopyIcon && (
