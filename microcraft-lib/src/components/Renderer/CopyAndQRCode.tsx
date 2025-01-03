@@ -39,10 +39,11 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
                 {config.enableCopyIcon && (
                     <FiCopy
                         onClick={handleCopy}
-                        className="absolute right-1 top-1 cursor-pointer"
+                        className="absolute right-1 cursor-pointer"
                         aria-label="Copy to clipboard"
                         size={20}
                         color="gray"
+                        style={{top: "50%", transform: "translateY(-50%)"}}
                     />
                 )}
             </div>

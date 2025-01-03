@@ -591,6 +591,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               {component.placement === "input" &&
                 (component.type === "text" ||
                   component.type === "number" ||
+                  component.type === "number" ||
                   component.type === "file") && (
                   // <input
                   //   className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
@@ -624,7 +625,6 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                       handleInputChange={handleInputChange}
                       components={components}
                     />
-
                 )}
               {component.placement === "input" &&
                 (component.type === "json") && (
