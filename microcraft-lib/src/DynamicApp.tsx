@@ -17,6 +17,7 @@ import { ERC20_ABI } from './components/ABI/ERC20_ABI';
 import { ERC721_ABI } from './components/ABI/ERC721_ABI';
 import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
 import 'ses';
+import InputComponent from "./components/Renderer/InputComponent";
 
 interface Props {
   runId: string;
@@ -473,8 +474,8 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               Select network
             </option>
             {networkDetails && networkDetails.length > 0 ? (
-              networkDetails.map((network: any) => (
-                <option key={network.name} value={network.name} className="text-gray-800">
+              networkDetails.map((network: any, index: number) => (
+                <option key={network.name || index} value={network.name} className="text-gray-800">
                   {network.name}
                 </option>
               ))
@@ -607,30 +608,14 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                 (component.type === "text" ||
                   component.type === "number" ||
                   component.type === "file") && (
-                  <input
-                    className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
-                    style={{
-                      ...(component.config && typeof component.config.styles === 'object'
-                        ? component.config.styles
-                        : {}),
-                    }}
-                    type={component.type}
-                    id={component.id}
-                    value={data[component.id] || ""}
-                    onChange={(e) => {
-                      components.forEach((elements) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, e.target.value, eventCode, "onChange");
-                            }
-                          });
-                        }
-                        handleInputChange(component.id, e.target.value);
-                      });
-                    }}
-                  />
+                    <InputComponent 
+                      key={component.id}
+                      component={component}
+                      data={data}
+                      config={component.config}
+                      handleInputChange={handleInputChange}
+                      components={components}
+                    />
                 )}
               {component.placement === "input" &&
                 (component.type === "json") && (
