@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiCopy } from "react-icons/fi";
+import "./inputComponent.scss";
 
 interface InputComponentProps {
     component: any;
@@ -67,9 +68,21 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
             {/* Display QR Code section if enabled */}
             {config.enableQrCode && (
                 <div className="mt-2">
-                    <button onClick={handleToggleQrCode}>
+                    {/* <button onClick={handleToggleQrCode}>
                         {isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}
-                    </button>
+                    </button> */}
+                    <div className="flex gap-4 self-center">
+            <p className="text-[#85909B] font-medium self-center">Required</p>
+            <input
+              type="checkbox"
+              id="toggle"
+              className="check-box"
+            //   checked={isRequired}
+            onChange={handleToggleQrCode}
+            />
+            <label htmlFor="toggle" className="switch"></label>
+          </div>
+
 
                     {isQrCodeVisible && (
                         <div className="mt-4">
