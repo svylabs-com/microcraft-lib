@@ -6,7 +6,7 @@ import Switch from "react-switch";
 interface InputComponentProps {
     component: any;
     data: any;
-    config: any;
+    config?: any;
     handleInputChange: (id: string, value: any, eventCode?: string, eventType?: string) => void;
     components: any;
 }
@@ -55,7 +55,7 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
                 />
 
                 {/* Display copy icon if enabled */}
-                {config.enableCopyIcon && (
+                {config?.enableCopyIcon && (
                     <div className="absolute right-1 top-1 transform -translate-y-1/2 flex flex-col items-center"
                         style={{ top: "50%", transform: "translateY(-50%)" }}>
                         <FiCopy
@@ -77,7 +77,7 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
             </div>
 
             {/* Display QR Code section if enabled with toggle */}
-            {config.enableQrCode && (
+            {config?.enableQrCode && (
                 <div className="mt-2 flex items-center space-x-2 justify-end">
                     <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
                     <Switch
