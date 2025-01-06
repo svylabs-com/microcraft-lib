@@ -56,7 +56,8 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
 
                 {/* Display copy icon if enabled */}
                 {config.enableCopyIcon && (
-                    <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center">
+                    <div className="absolute right-1 top-1 transform -translate-y-1/2 flex flex-col items-center"
+                        style={{ top: "50%", transform: "translateY(-50%)" }}>
                         <FiCopy
                             onClick={handleCopy}
                             title="Copy and Paste Anywhere"
