@@ -1,6 +1,6 @@
 {
   "name": "@svylabs/microcraft-lib",
-  "version": "1.6.2",
+  "version": "1.8.1",
   "description": "A library containing micro components for building intent based decentralized frontends for DeFi applications",
   "main": "src/DynamicApp.tsx",
   "scripts": {
@@ -25,6 +25,7 @@
     "@types/d3": "^7.4.3",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "@types/react-toggle": "^4.0.5",
     "typescript": "^5.6.3"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "bignumber.js": "^9.1.2",
     "d3": "^7.9.0",
     "ethers": "^6.13.3",
+    "qrcode.react": "^4.2.0",
     "qs": "^6.13.0",
     "react-icons": "^5.3.0",
     "react-json-view": "^1.21.3",

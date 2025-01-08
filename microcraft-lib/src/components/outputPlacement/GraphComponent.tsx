@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+//import { ToastContainer, toast } from "react-toastify";
+//import "react-toastify/dist/ReactToastify.css";
 import * as d3 from "d3";
 
 interface Props {
@@ -79,9 +79,9 @@ const GraphComponent: React.FC<Props> = ({
         config.graphType === "bar" || config.graphType === "line"
           ? config.graphType
           : (() => {
-              toast.error(
+             /* toast.error(
                 "Graph type not supported, please choose bar or line."
-              );
+              );*/
               return null;
             })();
 
