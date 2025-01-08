@@ -425,7 +425,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
             <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
               {isConnected ? (
-                <div className="">
+                <div>
                   <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -444,9 +444,10 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                     Connected to {selectedNetwork}
                   </span>
                   <select
-                    className="w-full sm:w-auto px-4 py-2 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onChange={(e) => {
                       const selectedAddress = e.target.value;
+                      console.log('Selected address:', selectedAddress);
                       setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
                       setContext({ ...context, connectedAddress: selectedAddress });
                     }}
