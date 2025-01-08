@@ -333,7 +333,6 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
     }
   };
 
-
   const executeOnChangeCode = async (code: any, data: any) => {
     try {
       setLoading(true);
