@@ -35,7 +35,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const [contractDetails, setContractDetails] = useState<any[]>([]);
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [data, setData] = useState<{ [key: string]: any }>({});
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState<boolean | undefined>();
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [networkName, setNetworkName] = useState('');
   const [chainId, setChainId] = useState('');
@@ -48,6 +48,17 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   console.log("WhitelistedJSElements: ", whitelistedJSElements);
 
   //lockdown();
+
+  async function checkNetwork(networks: any) {
+    const web3 = new Web3(window.ethereum);
+
+    const currentChainId = (await web3.eth.getChainId()).toString();
+    console.log("Current Chain ID: ", currentChainId);
+    if (networks.find((network: any) => (network.config.chainId + "") === currentChainId)) {
+      return currentChainId + "";
+    }
+    return "";
+  }
 
   useEffect(() => {
     // Update networks details if available
@@ -64,19 +75,25 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       updateData({});
     }
     if (runId != currentRunId) {
-      setConnectedAddressStatus('');
-      setIsConnected(false);
-      setNetworkName('');
-      setNetworkStatus('');
-      setChainId('');
-      setData({});
-      if (updateData) {
-        updateData({});
-      }
-      setContext({});
-      setCurrentRunId(runId);
+      checkNetwork(networks).then((selectedChainId) => {
+        if (selectedChainId !== chainId) {
+          setConnectedAddressStatus('');
+          setIsConnected(false);
+          setNetworkName('');
+          setNetworkStatus('');
+          setChainId('');
+          setContext({});
+        } else {
+          setContext({ ...context, runId});
+        }
+        setData({});
+        if (updateData) {
+          updateData({});
+        }
+        //setCurrentRunId(runId);
+      });
     }
-  }, [networks, contracts, context]);
+  }, [networks, contracts]);
 
   console.log("app.TSX-loadedData networkDetails: ", networkDetails);
   console.log("typeof app.TSX-loadedData: ", typeof networkDetails);
