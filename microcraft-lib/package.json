@@ -1,6 +1,6 @@
 {
   "name": "@svylabs/microcraft-lib",
-  "version": "1.7.6",
+  "version": "1.7.7",
   "description": "A library containing micro components for building intent based decentralized frontends for DeFi applications",
   "main": "src/DynamicApp.tsx",
   "scripts": {
@@ -43,6 +43,7 @@
     "react-json-view": "^1.21.3",
     "react-toastify": "^10.0.6",
     "ses": "^1.10.0",
+    "toggle-switch-react-native": "^3.3.0",
     "web3": "^4.13.0"
   },
   "publishConfig": {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiCopy } from "react-icons/fi";
-
+import ToggleSwitch from 'toggle-switch-react-native';
 
 interface InputComponentProps {
     component: any;
@@ -80,16 +80,13 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
             {config?.enableQrCode && (
                 <div className="mt-2 flex items-center space-x-2 justify-end">
                     <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
-                    {/* <Switch
-                        checked={isQrCodeVisible}
-                        onChange={handleToggleQrCode}
-                        offHandleColor="#d1d5db"
-                        onHandleColor="#4caf50"
+                    <ToggleSwitch
+                        isOn={isQrCodeVisible}
+                        onColor="#4caf50"
                         offColor="#e0e0e0"
-                        onColor="#81c784"
-                        height={20}
-                        width={40}
-                    /> */}
+                        size="medium"
+                        onToggle={handleToggleQrCode}
+                    />
                 </div>
             )}
 
