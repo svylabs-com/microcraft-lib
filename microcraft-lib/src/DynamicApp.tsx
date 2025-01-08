@@ -465,6 +465,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                     onChange={(e) => {
                       const selectedAddress = e.target.value;
                       console.log('Selected address:', selectedAddress);
+                      setData({});
                       setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
                       setContext({ ...context, connectedAddress: selectedAddress });
                     }}
