@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiCopy } from "react-icons/fi";
-import Toggle from "react-toggle";
+// import Toggle from "react-toggle";
+import { default as Toggle } from "react-toggle";
 import "react-toggle/style.css";
 
 interface InputComponentProps {
@@ -16,13 +17,13 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
     const [isQrCodeVisible, setIsQrCodeVisible] = useState(false);
     const [showCopyMessage, setShowCopyMessage] = useState(false);
 
-    // const handleToggleQrCode = (checked: boolean) => {
-    //     setIsQrCodeVisible(checked);
-    // };
-
-    const handleToggleQrCode = () => {
-        setIsQrCodeVisible(!isQrCodeVisible);
+    const handleToggleQrCode = (checked: boolean) => {
+        setIsQrCodeVisible(checked);
     };
+
+    // const handleToggleQrCode = () => {
+    //     setIsQrCodeVisible(!isQrCodeVisible);
+    // };
 
     const handleCopy = () => {
         navigator.clipboard.writeText(data[component.id] || "").then(() => {
@@ -85,11 +86,16 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
             {config?.enableQrCode && (
                 <div className="mt-2 flex items-center space-x-2 justify-end">
                     <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
-                    <Toggle
+                    {/* <Toggle
                         checked={isQrCodeVisible}
                         onChange={handleToggleQrCode}
                         icons={false}
-                    />
+                    /> */}
+                    <Toggle
+    checked={isQrCodeVisible}
+    onChange={(e) => handleToggleQrCode(e.target.checked)}
+/>
+
                 </div>
             )}
 
