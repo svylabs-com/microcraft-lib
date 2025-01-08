@@ -44,6 +44,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   //const [cosmosClient, setCosmosClient] = useState<SigningStargateClient | null>(null);
   const [context, setContext] = useState<any>({});
   const [currentRunId, setCurrentRunId] = useState<string>('');
+  const [connectedAddresses, setConnectedAddresses] = useState<string[]>([]);
   console.log("WhitelistedJSElements: ", whitelistedJSElements);
 
   //lockdown();
@@ -130,11 +131,12 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
 
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       if (accounts.length > 0) {
-        // Already connected
-        currentAddress = accounts[0];
+        // Store all connected addresses
+        setConnectedAddresses(accounts);
+        currentAddress = accounts[0]; // Set the first address as the current address
       } else {
-        // Not connected
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setConnectedAddresses(accounts);
         currentAddress = accounts[0];
       }
 
@@ -441,7 +443,22 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                     </svg>
                     Connected to {selectedNetwork}
                   </span>
-                  <h6 className="text-base sm:text-xs lg:text-xs font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">{connectedAddressStatus}</h6>
+                  <select
+                    className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => {
+                      const selectedAddress = e.target.value;
+                      setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
+                      setContext({ ...context, connectedAddress: selectedAddress });
+                    }}
+                    value={connectedAddressStatus.replace('Connected address: ', '') || ""}
+                    title="Select Address"
+                  >
+                    {connectedAddresses.map((address, index) => (
+                      <option key={index} value={address}>
+                        {address}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               ) : (
                 <span className="flex items-center text-red-600 dark:text-red-500">
