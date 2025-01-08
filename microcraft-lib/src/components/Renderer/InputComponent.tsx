@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiCopy } from "react-icons/fi";
-import ToggleSwitch from 'toggle-switch-react-native';
+import "./InputComponent.scss";
 
 interface InputComponentProps {
     component: any;
@@ -15,8 +15,11 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
     const [isQrCodeVisible, setIsQrCodeVisible] = useState(false);
     const [showCopyMessage, setShowCopyMessage] = useState(false);
 
-    const handleToggleQrCode = (checked: boolean) => {
-        setIsQrCodeVisible(checked);
+    // const handleToggleQrCode = (checked: boolean) => {
+    //     setIsQrCodeVisible(checked);
+    // };
+    const handleToggleQrCode = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsQrCodeVisible(e.target.checked);
     };
 
     const handleCopy = () => {
@@ -80,13 +83,23 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
             {config?.enableQrCode && (
                 <div className="mt-2 flex items-center space-x-2 justify-end">
                     <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
-                    <ToggleSwitch
+                    <div className="flex gap-4 self-center">
+                        <input
+                            type="checkbox"
+                            id="toggle"
+                            className="check-box"
+                            checked={isQrCodeVisible}
+                            onChange={handleToggleQrCode}
+                        />
+                        <label htmlFor="toggle" className="switch"></label>
+                    </div>
+                    {/* <ToggleSwitch
                         isOn={isQrCodeVisible}
                         onColor="#4caf50"
                         offColor="#e0e0e0"
                         size="medium"
                         onToggle={handleToggleQrCode}
-                    />
+                    /> */}
                 </div>
             )}
 
