@@ -12,14 +12,16 @@ interface InputComponentProps {
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({ component, data, config, handleInputChange, components }) => {
-    const [isQrCodeVisible, setIsQrCodeVisible] = useState(false);
+ 
+    const [qrCodeVisibility, setQrCodeVisibility] = useState<{ [key: string]: boolean }>({});
     const [showCopyMessage, setShowCopyMessage] = useState(false);
 
-    // const handleToggleQrCode = (checked: boolean) => {
-    //     setIsQrCodeVisible(checked);
-    // };
-    const handleToggleQrCode = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setIsQrCodeVisible(e.target.checked);
+    const handleToggleQrCode = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+        // Update the visibility of the specific QR code identified by its component ID
+        setQrCodeVisibility((prevState) => ({
+            ...prevState,
+            [id]: event.target.checked,
+        }));
     };
 
     const handleCopy = () => {
@@ -75,36 +77,28 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
                             </span>
                         )}
                     </div>
-
                 )}
             </div>
 
             {/* Display QR Code section if enabled with toggle */}
             {config?.enableQrCode && (
                 <div className="mt-2 flex items-center space-x-2 justify-end">
-                    <label className="text-sm">{isQrCodeVisible ? "Hide QR Code" : "Show QR Code"}</label>
+                    <label className="text-sm">{qrCodeVisibility[component.id] ? "Hide QR Code" : "Show QR Code"}</label>
                     <div className="flex gap-4 self-center">
                         <input
                             type="checkbox"
-                            id="toggle"
+                            id={`toggle-${component.id}`}
                             className="check-box"
-                            checked={isQrCodeVisible}
-                            onChange={handleToggleQrCode}
+                            checked={qrCodeVisibility[component.id] || false}
+                            onChange={(e) => handleToggleQrCode(component.id, e)}
                         />
-                        <label htmlFor="toggle" className="switch"></label>
+                        <label htmlFor={`toggle-${component.id}`} className="switch"></label>
                     </div>
-                    {/* <ToggleSwitch
-                        isOn={isQrCodeVisible}
-                        onColor="#4caf50"
-                        offColor="#e0e0e0"
-                        size="medium"
-                        onToggle={handleToggleQrCode}
-                    /> */}
                 </div>
             )}
 
             {/* Display the QR Code if toggled on */}
-            {isQrCodeVisible && (
+            {qrCodeVisibility[component.id] && (
                 <div className="flex mt-4 justify-center">
                     <QRCodeSVG value={data[component.id] || "No data available"} size={128} />
                 </div>
