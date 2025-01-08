@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from 'ethers';
 import Web3 from "web3";
-import { toast } from "react-toastify";
+//import { toast } from "react-toastify";
 //import { SigningStargateClient } from "@cosmjs/stargate";
 import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
@@ -160,7 +160,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setIsConnected(true);
       setChainId(chainId + "");
       setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
-      toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
+      //toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
     } catch (switchError: any) {
