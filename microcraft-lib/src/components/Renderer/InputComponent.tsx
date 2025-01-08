@@ -17,7 +17,7 @@ const InputComponent: React.FC<InputComponentProps> = ({ component, data, config
     const [showCopyMessage, setShowCopyMessage] = useState(false);
 
     const handleToggleQrCode = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
-        // Update the visibility of the specific QR code identified by its component ID
+        // visibility of the specific QR code identified by its component ID
         setQrCodeVisibility((prevState) => ({
             ...prevState,
             [id]: event.target.checked,
