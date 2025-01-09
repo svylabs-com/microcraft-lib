@@ -616,10 +616,10 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                         // console.log("Component:", component);
                         // console.log("Component.config:", component.config.transactionConfig);
                         // console.log("Component.config:", component.config.transactionConfig.type);
-                        const baseURL = component.config.transactionConfig.baseUrl || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
+                        const baseURL = component.config.baseUrl || component.config.transactionConfig.baseUrl || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
                         const preparedData = {
-                          type: component.config.transactionConfig.type || "",
-                          value: data[component.id] || component.config.transactionConfig.value || "",
+                          type: component.config.type || component.config.transactionConfig.type || "",
+                          value: data[component.id] || component.config.value || component.config.transactionConfig.value || "",
                           baseUrl: baseURL,
                         };
                         return (
