@@ -553,7 +553,6 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             <select
               className="w-full sm:w-auto px-4 md:px-2 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => handleNetworkChange(e.target.value)}
-              // value={selectedNetwork || ""}
               value={currentNetwork || ""}
               title="Select Network"
             >
