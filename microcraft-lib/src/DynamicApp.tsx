@@ -45,6 +45,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const [context, setContext] = useState<any>({});
   const [currentRunId, setCurrentRunId] = useState<string>('');
   const [connectedAddresses, setConnectedAddresses] = useState<string[]>([]);
+  const [currentNetwork, setCurrentNetwork] = useState<string | null>(null);
   console.log("WhitelistedJSElements: ", whitelistedJSElements);
 
   //lockdown();
@@ -112,6 +113,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setSelectedNetwork(null);
       setIsConnected(false);
       setContext({ ...context, connected: false, network: null, chainId: 0 });
+      setCurrentNetwork(null); // Reset current network
       setNetworkStatus('');
     } else {
       // Set the selected network and mark as connected
@@ -177,6 +179,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setIsConnected(true);
       setChainId(chainId + "");
       setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
+      setCurrentNetwork(selectedNetwork); // Update the current network
       //toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -227,6 +230,16 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       }
     }
   };
+
+  useEffect(() => {
+    // Check the current network on component mount or when networks change
+    checkNetwork(networks).then((selectedChainId) => {
+      if (selectedChainId) {
+        const connectedNetwork = networks.find((network: any) => network.config.chainId === selectedChainId);
+        setCurrentNetwork(connectedNetwork ? connectedNetwork.name : null); // Set the current network
+      }
+    });
+  }, [networks]);
 
   // const initializeCosmosClient = async () => {
   //   if (rpcUrls) {
@@ -504,7 +517,8 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             <select
               className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => handleNetworkChange(e.target.value)}
-              value={selectedNetwork || ""}
+              // value={selectedNetwork || ""}
+              value={currentNetwork || ""}
               title="Select Network"
             >
               <option value="" className="text-gray-400">
