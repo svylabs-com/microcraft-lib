@@ -107,6 +107,48 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const rpcUrls = supportedNetworks.length > 0 ? supportedNetworks[0]?.config?.rpcUrl : undefined;
   const chainIds = supportedNetworks.length > 0 ? supportedNetworks[0]?.config?.chainId : undefined;
 
+  useEffect(() => {
+    const fetchConnectedAddresses = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            setConnectedAddresses(accounts);
+            setIsConnected(true);
+          } else {
+            setIsConnected(false);
+          }
+        } catch (error) {
+          console.error("Error fetching connected addresses:", error);
+        }
+      }
+    };
+
+    fetchConnectedAddresses();
+  }, []);
+
+  useEffect(() => {
+    // Check the current network on component mount or when networks change
+    checkNetwork(networks).then((selectedChainId) => {
+      if (selectedChainId) {
+        const connectedNetwork = networks.find((network: any) => network.config.chainId === selectedChainId);
+        if (connectedNetwork) {
+          setCurrentNetwork(connectedNetwork.name); // Set the current network
+          setSelectedNetwork(connectedNetwork.name); // Set the selected network to the connected network
+          setIsConnected(true);
+        } else {
+          setCurrentNetwork(null);
+          setSelectedNetwork(null);
+          setIsConnected(false);
+        }
+      } else {
+        setCurrentNetwork(null);
+        setSelectedNetwork(null);
+        setIsConnected(false);
+      }
+    });
+  }, [networks]);
+
   const handleNetworkChange = (networkType: string) => {
     if (networkType === "") {
       // If the user selects the default option, reset the connection
@@ -180,6 +222,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setChainId(chainId + "");
       setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
       setCurrentNetwork(selectedNetwork); // Update the current network
+      setSelectedNetwork(selectedNetwork); // Ensure selected network is updated
       //toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -230,16 +273,6 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       }
     }
   };
-
-  useEffect(() => {
-    // Check the current network on component mount or when networks change
-    checkNetwork(networks).then((selectedChainId) => {
-      if (selectedChainId) {
-        const connectedNetwork = networks.find((network: any) => network.config.chainId === selectedChainId);
-        setCurrentNetwork(connectedNetwork ? connectedNetwork.name : null); // Set the current network
-      }
-    });
-  }, [networks]);
 
   // const initializeCosmosClient = async () => {
   //   if (rpcUrls) {
@@ -452,11 +485,11 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
     <>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
         {networkDetails?.length > 0 && (
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-gray-800">
             <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
               {isConnected ? (
                 <div>
-                  <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500">
+                  <span className="flex text-lg items-center justify-center md:justify-start text-green-600 dark:text-green-500">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -471,18 +504,22 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Connected to {selectedNetwork}
+                    {/* Connected to {selectedNetwork} */}
+                    Connected to {selectedNetwork || "Select network"}
                   </span>
                   <select
-                    className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full sm:w-auto text-lg px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onChange={(e) => {
                       const selectedAddress = e.target.value;
                       console.log('Selected address:', selectedAddress);
                       setData({});
                       setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
                       setContext({ ...context, connectedAddress: selectedAddress });
+                      
+                      setConnectedAddresses([selectedAddress]); 
                     }}
-                    value={connectedAddressStatus.replace('Connected address: ', '') || ""}
+                    // value={connectedAddressStatus.replace('Connected address: ', '') || ""}
+                     value={connectedAddresses[0] || ""}
                     title="Select Address"
                   >
                     {connectedAddresses.map((address, index) => (
@@ -515,7 +552,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
               )}
             </h2>
             <select
-              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-auto px-4 md:px-2 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => handleNetworkChange(e.target.value)}
               // value={selectedNetwork || ""}
               value={currentNetwork || ""}
