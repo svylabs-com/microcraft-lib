@@ -256,6 +256,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
         } catch (addError: any) {
           console.error('Error adding network:', addError);
           setNetworkStatus(`Failed to add network: ${addError.message}`);
+          setCurrentNetwork(selectedNetwork); 
           setConnectedAddressStatus('');
           setIsConnected(false);
           setChainId("");
