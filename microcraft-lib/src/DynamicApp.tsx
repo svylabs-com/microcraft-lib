@@ -518,8 +518,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                       
                       setConnectedAddresses([selectedAddress]); 
                     }}
-                    // value={connectedAddressStatus.replace('Connected address: ', '') || ""}
-                     value={connectedAddresses[0] || ""}
+                    value={connectedAddressStatus.replace('Connected address: ', '') || ""}
                     title="Select Address"
                   >
                     {connectedAddresses.map((address, index) => (
