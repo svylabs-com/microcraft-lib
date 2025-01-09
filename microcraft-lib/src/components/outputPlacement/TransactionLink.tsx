@@ -67,13 +67,15 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
   };
 
   useEffect(() => {
-    if (isConfirmed === null) {
-      const interval = setInterval(() => {
-        checkTransactionStatus(); // Check status every 12 seconds
-      }, 12000);
+    if (type === 'transaction') {
+      if (isConfirmed === null) {
+        const interval = setInterval(() => {
+          checkTransactionStatus(); // Check status every 12 seconds
+        }, 12000);
 
-      // Clean up the interval when the transaction is confirmed or the component is unmounted
-      return () => clearInterval(interval);
+        // Clean up the interval when the transaction is confirmed or the component is unmounted
+        return () => clearInterval(interval);
+      }
     }
   }, [isConfirmed]);
 
@@ -106,6 +108,8 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
             </svg>
           </a>
           {/* <div className={`text-sm ${isConfirmed ? 'text-green-500' : 'text-red-500'}`}>{statusMessage}</div> */}
+          {
+          (type === 'transaction') && (
           <div
             className={`text-sm font-medium p-2 rounded-md mt-2 flex items-center justify-center transition-all duration-300 ${isConfirmed
               ? 'bg-green-100 text-green-600'
@@ -117,7 +121,8 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
               }`}
           >
             {statusMessage}
-          </div>
+          </div>)
+    }
         </>
       ) : (
         <span className="text-gray-500 cursor-not-allowed font-medium">Link Not Available</span>
