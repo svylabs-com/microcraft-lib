@@ -1,6 +1,6 @@
 {
   "name": "@svylabs/microcraft-lib",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "description": "A library to render frontends defined as JSON, and comes prebuilt with components useful for building DeFi frontends.",
   "main": "src/DynamicApp.tsx",
   "scripts": {

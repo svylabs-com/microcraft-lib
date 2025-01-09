@@ -31,7 +31,7 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ data }) => {
   } else if (trimmedType === 'address') {
     linkUrl = trimmedBaseUrl ? `${trimmedBaseUrl}/address/${trimmedValue}` : trimmedValue;
   } else {
-    linkUrl = trimmedValue;
+    linkUrl = trimmedBaseUrl ? trimmedBaseUrl : trimmedValue;
   }
 
   // Function to check the transaction confirmation status using web3
