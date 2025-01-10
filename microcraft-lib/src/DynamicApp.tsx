@@ -437,7 +437,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
     const selectedAddress = e.target.value;
     console.log('Selected address:', selectedAddress);
   
-    if (selectedAddress === "connect-different") {
+    if (selectedAddress === "connect-new-account") {
       // Check if MetaMask is installed
       if (typeof window.ethereum !== 'undefined') {
         try {
@@ -509,13 +509,6 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                   </span>
                   <select
                     className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    // onChange={(e) => {
-                    //   const selectedAddress = e.target.value;
-                    //   console.log('Selected address:', selectedAddress);
-                    //   setData({});
-                    //   setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
-                    //   setContext({ ...context, connectedAddress: selectedAddress });
-                    // }}
                     onChange={handleAddressChange}
                     value={connectedAddressStatus.replace('Connected address: ', '') || ""}
                     title="Select Address"
@@ -527,7 +520,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                           : address}
                       </option>
                     ))}
-                    <option value="connect-different">Connect to a different address</option>
+                    <option value="connect-new-account">Connect to a different address</option>
                   </select>
                 </div>
               ) : (
