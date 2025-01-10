@@ -172,11 +172,11 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       }
 
       // If successful, update the state
-      setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+      setNetworkStatus(`Connected to ${selectedNetworkConfig.name}`);
       setConnectedAddressStatus(`Connected address: ${currentAddress}`);
       setIsConnected(true);
       setChainId(chainId + "");
-      setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
+      setContext({ ...context, connected: true, network: selectedNetworkConfig.name, chainId: chainId, connectedAddress: currentAddress });
       //toast.success(`Successfully connected to ${selectedNetworkConfig.type}`);
       setAlertOpen(false);
 
@@ -191,7 +191,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             method: 'wallet_addEthereumChain',
             params: [{
               chainId: formatChainId(chainId),
-              chainName: selectedNetworkConfig.type,
+              chainName: selectedNetworkConfig.name,
               rpcUrls: [rpcUrl],
               blockExplorerUrls: [exploreUrl],
               nativeCurrency: {
@@ -201,10 +201,10 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             }],
           });
 
-          setNetworkStatus(`Connected to ${selectedNetworkConfig.type}`);
+          setNetworkStatus(`Connected to ${selectedNetworkConfig.name}`);
           setConnectedAddressStatus(`Connected address: ${currentAddress}`);
           setIsConnected(true);
-          setContext({ ...context, connected: true, network: selectedNetworkConfig.type, chainId: chainId, connectedAddress: currentAddress });
+          setContext({ ...context, connected: true, network: selectedNetworkConfig.name, chainId: chainId, connectedAddress: currentAddress });
           setChainId(chainId + "");
           setAlertOpen(false);
         } catch (addError: any) {
@@ -464,6 +464,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   
             // Update state with the new address
             setConnectedAddressStatus(`Connected address: ${newAddress}`);
+            setConnectedAddresses(newAccounts);
             setContext({ ...context, connectedAddress: newAddress });
           }
         } catch (error) {
