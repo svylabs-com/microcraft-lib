@@ -433,6 +433,53 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
     return true;
   }
 
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedAddress = e.target.value;
+    console.log('Selected address:', selectedAddress);
+  
+    if (selectedAddress === "connect-different") {
+      // Check if MetaMask is installed
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          // Request account access
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('Connected accounts:', accounts);
+          
+          if (accounts.length > 0) {
+            const currentAccount = accounts[0];
+            console.log('Currently connected to account:', currentAccount);
+  
+            // Request permission to switch accounts
+            await window.ethereum.request({
+              method: 'wallet_requestPermissions',
+              params: [{
+                eth_accounts: {}
+              }]
+            });
+  
+            // After permission is granted, allow the user to choose a new account
+            const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const newAddress = newAccounts[0];
+            console.log('Switched to new account:', newAddress);
+  
+            // Update state with the new address
+            setConnectedAddressStatus(`Connected address: ${newAddress}`);
+            setContext({ ...context, connectedAddress: newAddress });
+          }
+        } catch (error) {
+          console.error("Error connecting or switching to MetaMask account:", error);
+        }
+      } else {
+        console.log('Please install MetaMask to connect to different addresses.');
+      }
+    } else {
+      // Handle selection of an existing address
+      setData({});
+      setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
+      setContext({ ...context, connectedAddress: selectedAddress });
+    }
+  };
+  
   // console.log("data", data);
 
   return (
@@ -443,7 +490,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
             <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
               {isConnected ? (
                 <div>
-                  <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500">
+                  <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500 text-lg">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -462,13 +509,14 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                   </span>
                   <select
                     className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={(e) => {
-                      const selectedAddress = e.target.value;
-                      console.log('Selected address:', selectedAddress);
-                      setData({});
-                      setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
-                      setContext({ ...context, connectedAddress: selectedAddress });
-                    }}
+                    // onChange={(e) => {
+                    //   const selectedAddress = e.target.value;
+                    //   console.log('Selected address:', selectedAddress);
+                    //   setData({});
+                    //   setConnectedAddressStatus(`Connected address: ${selectedAddress}`);
+                    //   setContext({ ...context, connectedAddress: selectedAddress });
+                    // }}
+                    onChange={handleAddressChange}
                     value={connectedAddressStatus.replace('Connected address: ', '') || ""}
                     title="Select Address"
                   >
@@ -479,6 +527,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                           : address}
                       </option>
                     ))}
+                    <option value="connect-different">Connect to a different address</option>
                   </select>
                 </div>
               ) : (
