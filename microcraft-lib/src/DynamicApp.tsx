@@ -35,6 +35,10 @@ const config = getDefaultConfig({
   transports: {
     [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/...'),
     [sepolia.id]: http('https://eth-sepolia.g.alchemy.com/v2/...'),
+    [polygon.id]: http('https://polygon-rpc.com'),
+    [optimism.id]: http('https://mainnet.optimism.io'),
+    [arbitrum.id]: http('https://arb1.arbitrum.io/rpc'),
+    [base.id]: http('https://mainnet.base.org'),
   },
 });
 
