@@ -3,6 +3,12 @@ import { ethers } from 'ethers';
 import Web3 from "web3";
 //import { toast } from "react-toastify";
 //import { SigningStargateClient } from "@cosmjs/stargate";
+import '@rainbow-me/rainbowkit/styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WagmiProvider, http } from 'wagmi'; //createClient
+import { mainnet, sepolia, polygon, optimism, arbitrum, base } from 'wagmi/chains';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
 import Table from "./components/outputPlacement/TableComponent";
@@ -18,6 +24,19 @@ import { ERC721_ABI } from './components/ABI/ERC721_ABI';
 import { ERC1155_ABI } from './components/ABI/ERC1155_ABI';
 import 'ses';
 import InputComponent from "./components/Renderer/InputComponent";
+
+const queryClient = new QueryClient();
+
+const config = getDefaultConfig({
+  appName: 'Microcraft',
+  projectId: 'YOUR_PROJECT_ID', // project ID
+  // chains: [mainnet], // Add your desired chains here
+  chains: [mainnet, sepolia, polygon, optimism, arbitrum, base],
+  transports: {
+    [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/...'),
+    [sepolia.id]: http('https://eth-sepolia.g.alchemy.com/v2/...'),
+  },
+});
 
 interface Props {
   runId: string;
@@ -485,7 +504,16 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
 
   return (
     <>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
       <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
+      <ConnectButton />
+          {/* {isConnected && (
+            <div>
+              <p>Connected as: {address}</p>
+              <button onClick={() => disconnect()}>Disconnect</button>
+            </div>
+          )} */}
         {networkDetails?.length > 0 && (
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
             <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
@@ -1035,6 +1063,8 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           onSwitchNetwork={switchToSupportedNetwork}
         />
       )}
+      </QueryClientProvider>
+    </WagmiProvider>
     </>
   );
 };
