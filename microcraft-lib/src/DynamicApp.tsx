@@ -7,7 +7,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, http } from 'wagmi'; //createClient
 import { mainnet, sepolia, polygon, optimism, arbitrum, base } from 'wagmi/chains';
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Wallet from "./components/Web3/DropdownConnectedWallet";
 import Graph from "./components/outputPlacement/GraphComponent";
@@ -30,7 +30,6 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: 'Microcraft',
   projectId: 'YOUR_PROJECT_ID', // project ID
-  // chains: [mainnet], // Add your desired chains here
   chains: [mainnet, sepolia, polygon, optimism, arbitrum, base],
   transports: {
     [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/...'),
@@ -107,7 +106,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           setChainId('');
           setContext({});
         } else {
-          setContext({ ...context, runId});
+          setContext({ ...context, runId });
         }
         setData({});
         if (updateData) {
@@ -459,7 +458,7 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
   const handleAddressChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedAddress = e.target.value;
     console.log('Selected address:', selectedAddress);
-  
+
     if (selectedAddress === "connect-new-account") {
       // Check if MetaMask is installed
       if (typeof window.ethereum !== 'undefined') {
@@ -467,11 +466,11 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
           // Request account access
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           console.log('Connected accounts:', accounts);
-          
+
           if (accounts.length > 0) {
             const currentAccount = accounts[0];
             console.log('Currently connected to account:', currentAccount);
-  
+
             // Request permission to switch accounts
             await window.ethereum.request({
               method: 'wallet_requestPermissions',
@@ -479,12 +478,12 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                 eth_accounts: {}
               }]
             });
-  
+
             // After permission is granted, allow the user to choose a new account
             const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             const newAddress = newAccounts[0];
             console.log('Switched to new account:', newAddress);
-  
+
             // Update state with the new address
             setConnectedAddressStatus(`Connected address: ${newAddress}`);
             setConnectedAddresses(newAccounts);
@@ -503,482 +502,324 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
       setContext({ ...context, connectedAddress: selectedAddress });
     }
   };
-  
+
   // console.log("data", data);
 
   return (
     <>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-      <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
-      <ConnectButton />
-          {/* {isConnected && (
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <div className="md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto">
+            <RainbowKitProvider>
+              <ConnectButton />
+            </RainbowKitProvider>
+            {/* {isConnected && (
             <div>
               <p>Connected as: {address}</p>
               <button onClick={() => disconnect()}>Disconnect</button>
             </div>
           )} */}
-        {networkDetails?.length > 0 && (
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
-            <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
-              {isConnected ? (
-                <div>
-                  <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500 text-lg">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-5 h-5 mr-2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Connected to {selectedNetwork}
-                  </span>
-                  <select
-                    className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleAddressChange}
-                    value={connectedAddressStatus.replace('Connected address: ', '') || ""}
-                    title="Select Address"
-                  >
-                    {connectedAddresses.map((address, index) => (
-                      <option key={index} value={address} title={address}>
-                        {window.innerWidth >= 768
-                          ? `${address.slice(0, 18)}...${address.slice(-8)}`
-                          : address}
-                      </option>
-                    ))}
-                    <option value="connect-new-account">Connect to a different address</option>
-                  </select>
-                </div>
-              ) : (
-                <span className="flex items-center text-red-600 dark:text-red-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5 mr-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  Not connected
-                </span>
-              )}
-            </h2>
-            <select
-              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => handleNetworkChange(e.target.value)}
-              value={selectedNetwork || ""}
-              title="Select Network"
-            >
-              <option value="" className="text-gray-400">
-                Select network
-              </option>
-              {networkDetails && networkDetails.length > 0 ? (
-                networkDetails.map((network: any, index: number) => (
-                  <option key={network.name || index} value={network.name} className="text-gray-800">
-                    {network.name}
-                  </option>
-                ))
-              ) : (
-                <option className="text-gray-400">No networks available</option>
-              )}
-            </select>
-          </div>
-        )}
-
-        <ul className="whitespace-normal break-words lg:text-lg">
-          {components.map((component, index) => shouldShow(component, data) && (
-            <li key={index} className="mb-4">
-              {(component.placement === "input" ||
-                component.placement === "output") && (
-                  <div>
-                    <label className="text-slate-500 font-semibold text-lg xl:text-xl">
-                      {component.label}:
-                    </label>
-                  </div>
-                )}
-
-              {/* display the output data where developers/users want */}
-              {component.placement === "output" && (
-                <div key={component.id}>
-                  {(() => {
-                    switch (component.type) {
-                      case "text":
-                        // return <TextOutput data={data[component.id]} />;
-                        <div
-                          className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                          style={{
-                            ...(component.config && typeof component.config.styles === 'object'
-                              ? component.config.styles
-                              : {}),
-                          }}
+            {networkDetails?.length > 0 && (
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6 px-4 py-3 shadow-md rounded-lg bg-white dark:bg-gray-800">
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2 mb-3 sm:mb-0">
+                  {isConnected ? (
+                    <div>
+                      <span className="flex items-center justify-center md:justify-start text-green-600 dark:text-green-500 text-lg">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          className="w-5 h-5 mr-2"
                         >
-                          <TextOutput data={data[component.id]} />
-                        </div>
-                      case "json":
-                        return (
-                          <pre
-                            className="overflow-auto w-full mt-2 px-4 py-2 bg-gray-100 overflow-x-auto border border-gray-300 rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                            {data[component.id]
-                              ? `${component.id}: ${JSON.stringify(data[component.id], null, 2)}`
-                              : ""}
-                          </pre>
-                        );
-                      case "table":
-                        // return <Table data={data[component.id]} />;
-                        return (
-                          <div
-                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                            <Table data={data[component.id]} />
-                          </div>
-                        );
-                      case "graph":
-                        return (
-                          <div style={{
-                            ...(component.config && typeof component.config.styles === 'object'
-                              ? component.config.styles
-                              : {}),
-                          }}
-                          >
-                            <Graph
-                              key={`graph-${component.id}`}
-                              output={data[component.id]}
-                              configurations={
-                                component.config.graphConfig
-                              }
-                              graphId={`graph-container-${component.id}`}
-                            />
-                          </div>
-                        );
-                      case "description":
-                        return (
-                          <div
-                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                            <DescriptionComponent data={data[component.id] || component.config?.default || null} template={component.config?.template || null} />
-                          </div>
-                        );
-                      case "link":
-                        // console.log("Component:", component);
-                        // console.log("Component.config:", component.config.transactionConfig);
-                        // console.log("Component.config:", component.config.transactionConfig.type);
-                        const baseURL = component.config.baseUrl || component.config.transactionConfig?.baseUrl || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
-                        const preparedData = {
-                          type: component.config.type || component.config.transactionConfig?.type || "",
-                          value: data[component.id] || component.config.value || component.config.transactionConfig?.value || "",
-                          baseUrl: baseURL,
-                        };
-                        return (
-                          <div
-                            className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
-                            style={{
-                              ...(component.config && typeof component.config.styles === 'object'
-                                ? component.config.styles
-                                : {}),
-                            }}
-                          >
-                            <TransactionLink data={preparedData} />
-                          </div>
-                        );
-                      default:
-                        return null;
-                    }
-                  })()}
-                </div>
-              )}
-
-              {component.placement === "input" &&
-                (component.type === "file") && (
-                  <input
-                    className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
-                    style={{
-                      ...(component.config && typeof component.config.styles === 'object'
-                        ? component.config.styles
-                        : {}),
-                    }}
-                    type={component.type}
-                    id={component.id}
-                    value={data[component.id] || ""}
-                    onChange={(e) => {
-                      components.forEach((elements) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, e.target.value, eventCode, "onChange");
-                            }
-                          });
-                        }
-                        handleInputChange(component.id, e.target.value);
-                      });
-                    }}
-                  />
-                )}
-
-              {component.placement === "input" &&
-                (component.type === "text" ||
-                  component.type === "number") && (
-                  <InputComponent
-                    key={component.id}
-                    component={component}
-                    data={data}
-                    config={component.config}
-                    handleInputChange={handleInputChange}
-                    components={components}
-                  />
-                )}
-              {component.placement === "input" &&
-                (component.type === "json") && (
-                  <div
-                    style={{
-                      ...(component.config && typeof component.config.styles === 'object'
-                        ? component.config.styles
-                        : {}),
-                    }}
-                    id={component.id}
-                  >
-                    <JsonViewer
-                      jsonData={data[component.id]}
-                      setJsonData={(updatedData) => {
-                        components.forEach((elements) => {
-                          if (elements.events) {
-                            elements.events.forEach((event: any) => {
-                              if (event.type === "onChange") {
-                                const eventCode = event.code;
-                                handleInputChange(component.id, updatedData, eventCode, "onChange");
-                              }
-                            });
-                          }
-                          handleInputChange(component.id, updatedData);
-                        });
-                      }}
-                    />
-                  </div>
-                )}
-              {component.type === "swap" && (
-                <div
-                  className="mt-2"
-                  style={{
-                    ...(component.config && typeof component.config.styles === 'object'
-                      ? component.config.styles
-                      : {}),
-                  }}
-                >
-                  <Swap
-                    configurations={component.config.swapConfig}
-                    onSwapChange={(swapData: any) => {
-                      components.forEach((elements) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, swapData, eventCode, "onChange");
-                            }
-                          });
-                        }
-                        handleInputChange(component.id, swapData);
-                      });
-                    }}
-                    data={data[component.id]}
-                    context={context}
-                  />
-                </div>
-              )}
-              {component.type === "dropdown" && (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Connected to {selectedNetwork}
+                      </span>
+                      <select
+                        className="w-full sm:w-auto px-4 py-1 md:px-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onChange={handleAddressChange}
+                        value={connectedAddressStatus.replace('Connected address: ', '') || ""}
+                        title="Select Address"
+                      >
+                        {connectedAddresses.map((address, index) => (
+                          <option key={index} value={address} title={address}>
+                            {window.innerWidth >= 768
+                              ? `${address.slice(0, 18)}...${address.slice(-8)}`
+                              : address}
+                          </option>
+                        ))}
+                        <option value="connect-new-account">Connect to a different address</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <span className="flex items-center text-red-600 dark:text-red-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-5 h-5 mr-2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      Not connected
+                    </span>
+                  )}
+                </h2>
                 <select
-                  className="block w-full p-2 mt-1 border bg-slate-200 border-gray-300 rounded-md focus:outline-none"
-                  id={component.id}
-                  value={data[component.id]}
-                  onChange={(e) => {
-                    components.forEach((elements) => {
-                      if (elements.events) {
-                        elements.events.forEach((event: any) => {
-                          if (event.type === "onChange") {
-                            const eventCode = event.code;
-                            handleInputChange(component.id, e.target.value, eventCode, "onChange");
-                          }
-                        });
-                      }
-                      handleInputChange(component.id, e.target.value);
-                    });
-                  }}
-                  style={{
-                    ...(component.config && typeof component.config.styles === 'object'
-                      ? component.config.styles
-                      : {}),
-                  }}
+                  className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => handleNetworkChange(e.target.value)}
+                  value={selectedNetwork || ""}
+                  title="Select Network"
                 >
-                  {component.config && component.config.optionsConfig && component.config.optionsConfig.values.map((option: any, idx: any) => (
-                    <option key={idx} value={option.trim()}>
-                      {option.trim()}
-                    </option>
-                  ))}
+                  <option value="" className="text-gray-400">
+                    Select network
+                  </option>
+                  {networkDetails && networkDetails.length > 0 ? (
+                    networkDetails.map((network: any, index: number) => (
+                      <option key={network.name || index} value={network.name} className="text-gray-800">
+                        {network.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option className="text-gray-400">No networks available</option>
+                  )}
                 </select>
-              )}
-              {component.type === "radio" && (
-                <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
-                  {component.config && component.config.optionsConfig &&
-                    component.config
-                      .optionsConfig.values.map((option: any, idx: any) => {
-                        const optionWidth = option.trim().length * 8 + 48;
+              </div>
+            )}
 
-                        return (
-                          <div
-                            key={idx}
-                            className={`flex flex-shrink-0 items-center mr-2 md:mr-3 ${optionWidth > 200 ? "overflow-x-auto md:h-8" : ""
-                              } h-7 md:w-[12.4rem] lg:w-[15rem] xl:w-[14.1rem] relative`}
-                          >
-                            <input
-                              type="radio"
-                              id={`${component.id}_${idx}`}
-                              name={component.id}
-                              value={option.trim()}
-                              checked={data[component.id] === option}
-                              onChange={(e) => {
-                                components.forEach((elements) => {
-                                  if (elements.events) {
-                                    elements.events.forEach((event: any) => {
-                                      if (event.type === "onChange") {
-                                        const eventCode = event.code;
-                                        handleInputChange(component.id, e.target.value, eventCode, "onChange");
-                                      }
-                                    });
-                                  }
-                                  handleInputChange(component.id, e.target.value);
-                                });
-                              }}
-                              className="mr-2 absolute"
+            <ul className="whitespace-normal break-words lg:text-lg">
+              {components.map((component, index) => shouldShow(component, data) && (
+                <li key={index} className="mb-4">
+                  {(component.placement === "input" ||
+                    component.placement === "output") && (
+                      <div>
+                        <label className="text-slate-500 font-semibold text-lg xl:text-xl">
+                          {component.label}:
+                        </label>
+                      </div>
+                    )}
+
+                  {/* display the output data where developers/users want */}
+                  {component.placement === "output" && (
+                    <div key={component.id}>
+                      {(() => {
+                        switch (component.type) {
+                          case "text":
+                            // return <TextOutput data={data[component.id]} />;
+                            <div
+                              className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
                               style={{
-                                top: "50%",
-                                transform: "translateY(-50%)",
+                                ...(component.config && typeof component.config.styles === 'object'
+                                  ? component.config.styles
+                                  : {}),
                               }}
-                            />
-                            <label
-                              htmlFor={`${component.id}_${idx}`}
-                              className="whitespace-nowrap"
-                              style={{ marginLeft: "1.5rem" }}
                             >
-                              {option.trim()}
-                            </label>
-                          </div>
-                        );
-                      })}
-                </div>
-              )}
-              {component.type === "checkbox" && (
-                <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
-                  {component.config && component.config.optionsConfig &&
-                    component.config
-                      .optionsConfig.values.map((option: any, idx: any) => {
-                        const optionWidth = option.trim().length * 8 + 48;
+                              <TextOutput data={data[component.id]} />
+                            </div>
+                          case "json":
+                            return (
+                              <pre
+                                className="overflow-auto w-full mt-2 px-4 py-2 bg-gray-100 overflow-x-auto border border-gray-300 rounded-lg"
+                                style={{
+                                  ...(component.config && typeof component.config.styles === 'object'
+                                    ? component.config.styles
+                                    : {}),
+                                }}
+                              >
+                                {data[component.id]
+                                  ? `${component.id}: ${JSON.stringify(data[component.id], null, 2)}`
+                                  : ""}
+                              </pre>
+                            );
+                          case "table":
+                            // return <Table data={data[component.id]} />;
+                            return (
+                              <div
+                                className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                                style={{
+                                  ...(component.config && typeof component.config.styles === 'object'
+                                    ? component.config.styles
+                                    : {}),
+                                }}
+                              >
+                                <Table data={data[component.id]} />
+                              </div>
+                            );
+                          case "graph":
+                            return (
+                              <div style={{
+                                ...(component.config && typeof component.config.styles === 'object'
+                                  ? component.config.styles
+                                  : {}),
+                              }}
+                              >
+                                <Graph
+                                  key={`graph-${component.id}`}
+                                  output={data[component.id]}
+                                  configurations={
+                                    component.config.graphConfig
+                                  }
+                                  graphId={`graph-container-${component.id}`}
+                                />
+                              </div>
+                            );
+                          case "description":
+                            return (
+                              <div
+                                className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                                style={{
+                                  ...(component.config && typeof component.config.styles === 'object'
+                                    ? component.config.styles
+                                    : {}),
+                                }}
+                              >
+                                <DescriptionComponent data={data[component.id] || component.config?.default || null} template={component.config?.template || null} />
+                              </div>
+                            );
+                          case "link":
+                            // console.log("Component:", component);
+                            // console.log("Component.config:", component.config.transactionConfig);
+                            // console.log("Component.config:", component.config.transactionConfig.type);
+                            const baseURL = component.config.baseUrl || component.config.transactionConfig?.baseUrl || networkDetails.find((network: any) => network.name === selectedNetwork)?.config?.exploreUrl || "https://etherscan.io";
+                            const preparedData = {
+                              type: component.config.type || component.config.transactionConfig?.type || "",
+                              value: data[component.id] || component.config.value || component.config.transactionConfig?.value || "",
+                              baseUrl: baseURL,
+                            };
+                            return (
+                              <div
+                                className="overflow-auto w-full bg-gray-100 overflow-x-auto rounded-lg"
+                                style={{
+                                  ...(component.config && typeof component.config.styles === 'object'
+                                    ? component.config.styles
+                                    : {}),
+                                }}
+                              >
+                                <TransactionLink data={preparedData} />
+                              </div>
+                            );
+                          default:
+                            return null;
+                        }
+                      })()}
+                    </div>
+                  )}
 
-                        return (
-                          <div
-                            key={idx}
-                            className={`flex flex-shrink-0 items-center mr-2 md:mr-3 ${optionWidth > 200 ? "overflow-x-auto md:h-8" : ""
-                              } h-7 md:w-[10.75rem] lg:w-[12.75rem] xl:w-[14.75rem] relative`}
-                          >
-                            <input
-                              type="checkbox"
-                              id={`${component.id}_${idx}`}
-                              checked={
-                                data[component.id] &&
-                                data[component.id].includes(option)
+                  {component.placement === "input" &&
+                    (component.type === "file") && (
+                      <input
+                        className="w-full px-4  p-2 mt-1 border bg-slate-200 border-gray-300 rounded focus:outline-none"
+                        style={{
+                          ...(component.config && typeof component.config.styles === 'object'
+                            ? component.config.styles
+                            : {}),
+                        }}
+                        type={component.type}
+                        id={component.id}
+                        value={data[component.id] || ""}
+                        onChange={(e) => {
+                          components.forEach((elements) => {
+                            if (elements.events) {
+                              elements.events.forEach((event: any) => {
+                                if (event.type === "onChange") {
+                                  const eventCode = event.code;
+                                  handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                                }
+                              });
+                            }
+                            handleInputChange(component.id, e.target.value);
+                          });
+                        }}
+                      />
+                    )}
+
+                  {component.placement === "input" &&
+                    (component.type === "text" ||
+                      component.type === "number") && (
+                      <InputComponent
+                        key={component.id}
+                        component={component}
+                        data={data}
+                        config={component.config}
+                        handleInputChange={handleInputChange}
+                        components={components}
+                      />
+                    )}
+                  {component.placement === "input" &&
+                    (component.type === "json") && (
+                      <div
+                        style={{
+                          ...(component.config && typeof component.config.styles === 'object'
+                            ? component.config.styles
+                            : {}),
+                        }}
+                        id={component.id}
+                      >
+                        <JsonViewer
+                          jsonData={data[component.id]}
+                          setJsonData={(updatedData) => {
+                            components.forEach((elements) => {
+                              if (elements.events) {
+                                elements.events.forEach((event: any) => {
+                                  if (event.type === "onChange") {
+                                    const eventCode = event.code;
+                                    handleInputChange(component.id, updatedData, eventCode, "onChange");
+                                  }
+                                });
                               }
-                              onChange={(e) => {
-                                const isChecked = e.target.checked;
-                                const currentValue = data[component.id] || [];
-                                const updatedValue = isChecked
-                                  ? [...currentValue, option]
-                                  : currentValue.filter(
-                                    (item: any) => item !== option
-                                  );
-                                components.forEach((elements) => {
-                                  if (elements.events) {
-                                    elements.events.forEach((event: any) => {
-                                      if (event.type === "onChange") {
-                                        const eventCode = event.code;
-                                        handleInputChange(component.id, updatedValue, eventCode, "onChange");
-                                      }
-                                    });
-                                  }
-                                  handleInputChange(component.id, updatedValue);
-                                });
-                              }}
-                              className="mr-2 absolute"
-                              style={{
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                              }}
-                            />
-                            <label
-                              htmlFor={`${component.id}_${idx}`}
-                              className="whitespace-nowrap"
-                              style={{ marginLeft: "1.5rem" }}
-                            >
-                              {option.trim()}
-                            </label>
-                          </div>
-                        );
-                      })}
-                </div>
-              )}
-              {component.type === "slider" && (
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
+                              handleInputChange(component.id, updatedData);
+                            });
+                          }}
+                        />
+                      </div>
+                    )}
+                  {component.type === "swap" && (
+                    <div
+                      className="mt-2"
+                      style={{
+                        ...(component.config && typeof component.config.styles === 'object'
+                          ? component.config.styles
+                          : {}),
+                      }}
+                    >
+                      <Swap
+                        configurations={component.config.swapConfig}
+                        onSwapChange={(swapData: any) => {
+                          components.forEach((elements) => {
+                            if (elements.events) {
+                              elements.events.forEach((event: any) => {
+                                if (event.type === "onChange") {
+                                  const eventCode = event.code;
+                                  handleInputChange(component.id, swapData, eventCode, "onChange");
+                                }
+                              });
+                            }
+                            handleInputChange(component.id, swapData);
+                          });
+                        }}
+                        data={data[component.id]}
+                        context={context}
+                      />
+                    </div>
+                  )}
+                  {component.type === "dropdown" && (
+                    <select
+                      className="block w-full p-2 mt-1 border bg-slate-200 border-gray-300 rounded-md focus:outline-none"
                       id={component.id}
-                      className="w-full h-8 cursor-pointer" //md:w-[60%]
-                      name={component.label}
-                      min={
-                        component.config.sliderConfig
-                          .interval.min
-                      }
-                      max={
-                        component.config.sliderConfig
-                          .interval.max
-                      }
-                      step={
-                        component.config.sliderConfig
-                          .step
-                      }
-                      value={
-                        data[component.id] ||
-                        component.config.sliderConfig
-                          .value
-                      }
+                      value={data[component.id]}
                       onChange={(e) => {
-                        console.log("components:", components);
                         components.forEach((elements) => {
                           if (elements.events) {
                             elements.events.forEach((event: any) => {
@@ -991,84 +832,244 @@ const DynamicApp: React.FC<Props> = ({ runId, components, updateData, debug, net
                           handleInputChange(component.id, e.target.value);
                         });
                       }}
-                    />
-                    <span className="font-semibold">
-                      {data[component.id] ||
-                        component.config.sliderConfig
-                          .value}
-                    </span>
-                  </div>
-                  {/* <p className="text-sm text-gray-500 flex items-center">
+                      style={{
+                        ...(component.config && typeof component.config.styles === 'object'
+                          ? component.config.styles
+                          : {}),
+                      }}
+                    >
+                      {component.config && component.config.optionsConfig && component.config.optionsConfig.values.map((option: any, idx: any) => (
+                        <option key={idx} value={option.trim()}>
+                          {option.trim()}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {component.type === "radio" && (
+                    <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
+                      {component.config && component.config.optionsConfig &&
+                        component.config
+                          .optionsConfig.values.map((option: any, idx: any) => {
+                            const optionWidth = option.trim().length * 8 + 48;
+
+                            return (
+                              <div
+                                key={idx}
+                                className={`flex flex-shrink-0 items-center mr-2 md:mr-3 ${optionWidth > 200 ? "overflow-x-auto md:h-8" : ""
+                                  } h-7 md:w-[12.4rem] lg:w-[15rem] xl:w-[14.1rem] relative`}
+                              >
+                                <input
+                                  type="radio"
+                                  id={`${component.id}_${idx}`}
+                                  name={component.id}
+                                  value={option.trim()}
+                                  checked={data[component.id] === option}
+                                  onChange={(e) => {
+                                    components.forEach((elements) => {
+                                      if (elements.events) {
+                                        elements.events.forEach((event: any) => {
+                                          if (event.type === "onChange") {
+                                            const eventCode = event.code;
+                                            handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                                          }
+                                        });
+                                      }
+                                      handleInputChange(component.id, e.target.value);
+                                    });
+                                  }}
+                                  className="mr-2 absolute"
+                                  style={{
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`${component.id}_${idx}`}
+                                  className="whitespace-nowrap"
+                                  style={{ marginLeft: "1.5rem" }}
+                                >
+                                  {option.trim()}
+                                </label>
+                              </div>
+                            );
+                          })}
+                    </div>
+                  )}
+                  {component.type === "checkbox" && (
+                    <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
+                      {component.config && component.config.optionsConfig &&
+                        component.config
+                          .optionsConfig.values.map((option: any, idx: any) => {
+                            const optionWidth = option.trim().length * 8 + 48;
+
+                            return (
+                              <div
+                                key={idx}
+                                className={`flex flex-shrink-0 items-center mr-2 md:mr-3 ${optionWidth > 200 ? "overflow-x-auto md:h-8" : ""
+                                  } h-7 md:w-[10.75rem] lg:w-[12.75rem] xl:w-[14.75rem] relative`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={`${component.id}_${idx}`}
+                                  checked={
+                                    data[component.id] &&
+                                    data[component.id].includes(option)
+                                  }
+                                  onChange={(e) => {
+                                    const isChecked = e.target.checked;
+                                    const currentValue = data[component.id] || [];
+                                    const updatedValue = isChecked
+                                      ? [...currentValue, option]
+                                      : currentValue.filter(
+                                        (item: any) => item !== option
+                                      );
+                                    components.forEach((elements) => {
+                                      if (elements.events) {
+                                        elements.events.forEach((event: any) => {
+                                          if (event.type === "onChange") {
+                                            const eventCode = event.code;
+                                            handleInputChange(component.id, updatedValue, eventCode, "onChange");
+                                          }
+                                        });
+                                      }
+                                      handleInputChange(component.id, updatedValue);
+                                    });
+                                  }}
+                                  className="mr-2 absolute"
+                                  style={{
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`${component.id}_${idx}`}
+                                  className="whitespace-nowrap"
+                                  style={{ marginLeft: "1.5rem" }}
+                                >
+                                  {option.trim()}
+                                </label>
+                              </div>
+                            );
+                          })}
+                    </div>
+                  )}
+                  {component.type === "slider" && (
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          id={component.id}
+                          className="w-full h-8 cursor-pointer" //md:w-[60%]
+                          name={component.label}
+                          min={
+                            component.config.sliderConfig
+                              .interval.min
+                          }
+                          max={
+                            component.config.sliderConfig
+                              .interval.max
+                          }
+                          step={
+                            component.config.sliderConfig
+                              .step
+                          }
+                          value={
+                            data[component.id] ||
+                            component.config.sliderConfig
+                              .value
+                          }
+                          onChange={(e) => {
+                            console.log("components:", components);
+                            components.forEach((elements) => {
+                              if (elements.events) {
+                                elements.events.forEach((event: any) => {
+                                  if (event.type === "onChange") {
+                                    const eventCode = event.code;
+                                    handleInputChange(component.id, e.target.value, eventCode, "onChange");
+                                  }
+                                });
+                              }
+                              handleInputChange(component.id, e.target.value);
+                            });
+                          }}
+                        />
+                        <span className="font-semibold">
+                          {data[component.id] ||
+                            component.config.sliderConfig
+                              .value}
+                        </span>
+                      </div>
+                      {/* <p className="text-sm text-gray-500 flex items-center">
                     <svg className="w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2l4 -4" />
                     </svg>
                     <span>Recommended: <strong className="text-blue-600">{component.config.sliderConfig.value}</strong></span>
                   </p> */}
-                </div>
-              )}
-              {component.type === "walletDropdown" && (
-                <div>
-                  <Wallet
-                    configurations={networkDetails}
-                    onSelectAddress={(address) => {
-                      components.forEach((elements) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, { address, balance: null }, eventCode, "onChange");
+                    </div>
+                  )}
+                  {component.type === "walletDropdown" && (
+                    <div>
+                      <Wallet
+                        configurations={networkDetails}
+                        onSelectAddress={(address) => {
+                          components.forEach((elements) => {
+                            if (elements.events) {
+                              elements.events.forEach((event: any) => {
+                                if (event.type === "onChange") {
+                                  const eventCode = event.code;
+                                  handleInputChange(component.id, { address, balance: null }, eventCode, "onChange");
+                                }
+                              });
                             }
+                            handleInputChange(component.id, { address, balance: null });
                           });
-                        }
-                        handleInputChange(component.id, { address, balance: null });
-                      });
-                    }}
-                    onUpdateBalance={(balance) => {
-                      components.forEach((elements) => {
-                        if (elements.events) {
-                          elements.events.forEach((event: any) => {
-                            if (event.type === "onChange") {
-                              const eventCode = event.code;
-                              handleInputChange(component.id, { address: data[component.id]?.address || "", balance }, eventCode, "onChange");
+                        }}
+                        onUpdateBalance={(balance) => {
+                          components.forEach((elements) => {
+                            if (elements.events) {
+                              elements.events.forEach((event: any) => {
+                                if (event.type === "onChange") {
+                                  const eventCode = event.code;
+                                  handleInputChange(component.id, { address: data[component.id]?.address || "", balance }, eventCode, "onChange");
+                                }
+                              });
                             }
+                            handleInputChange(component.id, { address: data[component.id]?.address || "", balance });
                           });
-                        }
-                        handleInputChange(component.id, { address: data[component.id]?.address || "", balance });
-                      });
-                    }}
-                    context={context}
-                  />
-                </div>
-              )}
-              {component.type === "button" && component.code && (
-                <button
-                  className="block px-4 p-2 mt-2 font-semibold text-white bg-red-500 border border-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring focus:border-red-700"
-                  style={{
-                    ...(component.config && typeof component.config.styles === 'object'
-                      ? component.config.styles
-                      : {}),
-                  }}
-                  id={component.id}
-                  onClick={() => handleRun(component.code!, data)}
-                >
-                  {component.label}
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-      {loading && <Loading />}
-      {networkStatus !== `Connected to ${networkName}` && (
-        <Alert
-          isOpen={alertOpen}
-          onClose={() => setAlertOpen(false)}
-          networkStatus={<span dangerouslySetInnerHTML={{ __html: networkStatus }} />}
-          onSwitchNetwork={switchToSupportedNetwork}
-        />
-      )}
-      </QueryClientProvider>
-    </WagmiProvider>
+                        }}
+                        context={context}
+                      />
+                    </div>
+                  )}
+                  {component.type === "button" && component.code && (
+                    <button
+                      className="block px-4 p-2 mt-2 font-semibold text-white bg-red-500 border border-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring focus:border-red-700"
+                      style={{
+                        ...(component.config && typeof component.config.styles === 'object'
+                          ? component.config.styles
+                          : {}),
+                      }}
+                      id={component.id}
+                      onClick={() => handleRun(component.code!, data)}
+                    >
+                      {component.label}
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+          {loading && <Loading />}
+          {networkStatus !== `Connected to ${networkName}` && (
+            <Alert
+              isOpen={alertOpen}
+              onClose={() => setAlertOpen(false)}
+              networkStatus={<span dangerouslySetInnerHTML={{ __html: networkStatus }} />}
+              onSwitchNetwork={switchToSupportedNetwork}
+            />
+          )}
+        </QueryClientProvider>
+      </WagmiProvider>
     </>
   );
 };
