@@ -30,6 +30,10 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: 'Microcraft',
   projectId: 'YOUR_PROJECT_ID', // project ID
+  // chains: [mainnet],
+  // transports: {
+  //   [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/...'),
+  // },
   chains: [mainnet, sepolia, polygon, optimism, arbitrum, base],
   transports: {
     [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/...'),
