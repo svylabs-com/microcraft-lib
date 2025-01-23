@@ -12,12 +12,12 @@ const MarkdownComponent: React.FC<MarkdownProps> = ({ content }) => {
     <div className="prose max-w-none prose-slate dark:prose-invert mx-auto p-4 border rounded-lg shadow-lg">
       <ReactMarkdown
         components={{
-            code({ node, inline, className, children, ...props }: any) {
+          code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
               <SyntaxHighlighter
-                style={materialDark}
                 language={match[1]}
+                style={materialDark as unknown as { [key: string]: React.CSSProperties }}
                 PreTag="div"
                 {...props}
               >
